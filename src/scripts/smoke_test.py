@@ -169,6 +169,60 @@ def main() -> int:
         mine = client.get("/api/doctor/my-patients", headers=dh).json()
         check("doctor's patient list includes them", any(p["id"] == patient_id for p in mine))
 
+        print("\n[ai triage]")
+        health = client.get("/api/ai/health").json()
+        check(
+            "triage health reports a provider",
+            health["provider"] in {"claude", "rules"},
+            f"{health['provider']} ({health['status']})",
+        )
+        check("rule-engine fallback is always available", health["fallback_available"] is True)
+
+        triage = client.post(
+            "/api/ai/analyze-symptoms",
+            json={"symptoms_description": "Sore throat and earache for the past three days"},
+            headers=ph,
+        )
+        check("triage returns an analysis", triage.status_code == 200, str(triage.status_code))
+        if triage.status_code == 200:
+            body = triage.json()
+            top = body["recommended_specializations"][0]
+            check("routes a sore throat to ENT", top["specialization"] == "ENT", top["specialization"])
+            check(
+                "priority is 1-based and lower-is-better",
+                top["priority"] == 1,
+                f"priority={top['priority']}",
+            )
+            check(
+                "urgency uses the frontend vocabulary",
+                body["urgency_level"] in {"emergency", "high", "medium", "low"},
+                body["urgency_level"],
+            )
+            check("follow-up questions are returned", len(body["additional_questions"]) >= 2)
+
+        emergency = client.post(
+            "/api/ai/analyze-symptoms",
+            json={"symptoms_description": "Crushing chest pain spreading to my left arm, sweating"},
+            headers=ph,
+        ).json()
+        check(
+            "chest pain is triaged as an emergency",
+            emergency["urgency_level"] == "emergency",
+            emergency["urgency_level"],
+        )
+        check("emergency explains its red flags", bool(emergency["red_flags"]))
+        check(
+            "emergency summary tells the patient not to wait",
+            "emergency" in emergency["summary"].lower(),
+        )
+
+        short = client.post(
+            "/api/ai/analyze-symptoms",
+            json={"symptoms_description": "hurts"},
+            headers=ph,
+        )
+        check("too-short descriptions are rejected", short.status_code == 422, str(short.status_code))
+
         print("\n[authorization]")
         forbidden = client.get("/api/admin/hospitals", headers=ph)
         check("patient cannot read admin endpoints", forbidden.status_code == 403)

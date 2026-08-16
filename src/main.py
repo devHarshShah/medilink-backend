@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api import admin, auth, doctor, patients, pharmacy, v1_users
+from src.api import admin, ai, auth, doctor, patients, pharmacy, v1_users
 from src.core.config import settings
 from src.core.errors import register_exception_handlers
 
@@ -47,6 +47,7 @@ app.include_router(patients.router)
 app.include_router(admin.router)
 app.include_router(doctor.router)
 app.include_router(pharmacy.router)
+app.include_router(ai.router)
 
 
 @app.get("/", tags=["root"])

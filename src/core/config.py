@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     # AI triage
     anthropic_api_key: str | None = None
-    triage_model: str = "claude-sonnet-5"
+    triage_model: str = "claude-opus-5"
     triage_timeout_seconds: float = 12.0
 
     # Uploads

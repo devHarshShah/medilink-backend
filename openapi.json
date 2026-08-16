@@ -1693,6 +1693,75 @@
     ]
    }
   },
+  "/api/ai/analyze-symptoms": {
+   "post": {
+    "tags": [
+     "AI"
+    ],
+    "summary": "Analyze Symptoms Endpoint",
+    "description": "Map a free-text symptom description to specialisations and an urgency level.\n\nRouting only -- this is not a diagnosis, and the response is worded for a\npatient who is about to pick a queue.",
+    "operationId": "analyze_symptoms_endpoint_api_ai_analyze_symptoms_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SymptomsAnalysisRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SymptomsAnalysisResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/ai/health": {
+   "get": {
+    "tags": [
+     "AI"
+    ],
+    "summary": "Triage Health",
+    "description": "Which triage provider is live. The rule engine is always available, so\nthis reports degraded rather than unhealthy when Claude is not configured.",
+    "operationId": "triage_health_api_ai_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/TriageHealthResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/": {
    "get": {
     "tags": [
@@ -1929,6 +1998,31 @@
      "hospital_id"
     ],
     "title": "DoctorCreate"
+   },
+   "DoctorRecommendation": {
+    "properties": {
+     "specialization": {
+      "type": "string",
+      "title": "Specialization"
+     },
+     "priority": {
+      "type": "integer",
+      "maximum": 3.0,
+      "minimum": 1.0,
+      "title": "Priority"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "specialization",
+     "priority",
+     "reason"
+    ],
+    "title": "DoctorRecommendation"
    },
    "DoctorResponse": {
     "properties": {
@@ -3394,6 +3488,114 @@
     ],
     "title": "QRAccessResponse"
    },
+   "SymptomsAnalysisRequest": {
+    "properties": {
+     "symptoms_description": {
+      "type": "string",
+      "maxLength": 2000,
+      "minLength": 10,
+      "title": "Symptoms Description"
+     },
+     "patient_age": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 130.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Age"
+     },
+     "patient_gender": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Gender"
+     },
+     "medical_history": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Medical History"
+     }
+    },
+    "type": "object",
+    "required": [
+     "symptoms_description"
+    ],
+    "title": "SymptomsAnalysisRequest"
+   },
+   "SymptomsAnalysisResponse": {
+    "properties": {
+     "recommended_specializations": {
+      "items": {
+       "$ref": "#/components/schemas/DoctorRecommendation"
+      },
+      "type": "array",
+      "title": "Recommended Specializations"
+     },
+     "urgency_level": {
+      "$ref": "#/components/schemas/UrgencyLevel"
+     },
+     "summary": {
+      "type": "string",
+      "title": "Summary"
+     },
+     "reasoning": {
+      "type": "string",
+      "title": "Reasoning"
+     },
+     "confidence_score": {
+      "type": "number",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence Score"
+     },
+     "additional_questions": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Additional Questions",
+      "default": []
+     },
+     "red_flags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Red Flags",
+      "default": []
+     },
+     "fallback_used": {
+      "type": "boolean",
+      "title": "Fallback Used",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "recommended_specializations",
+     "urgency_level",
+     "summary",
+     "reasoning",
+     "confidence_score"
+    ],
+    "title": "SymptomsAnalysisResponse"
+   },
    "TestStatus": {
     "type": "string",
     "enum": [
@@ -3403,6 +3605,50 @@
      "cancelled"
     ],
     "title": "TestStatus"
+   },
+   "TriageHealthResponse": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "provider": {
+      "type": "string",
+      "title": "Provider"
+     },
+     "model": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Model"
+     },
+     "fallback_available": {
+      "type": "boolean",
+      "title": "Fallback Available"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "provider",
+     "fallback_available"
+    ],
+    "title": "TriageHealthResponse"
+   },
+   "UrgencyLevel": {
+    "type": "string",
+    "enum": [
+     "emergency",
+     "high",
+     "medium",
+     "low"
+    ],
+    "title": "UrgencyLevel"
    },
    "UserCreate": {
     "properties": {

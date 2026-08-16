@@ -32,6 +32,7 @@ from src.models.enums import (
 )
 from src.models.organizations import DiagnosticCenter, Hospital, Pharmacy
 from src.models.people import Doctor, Nurse, Patient
+from src.models.triage import TriageAnalysis
 from src.models.user import User
 
 __all__ = [
@@ -61,6 +62,7 @@ __all__ = [
     "QueueStatus",
     "QueueType",
     "TestStatus",
+    "TriageAnalysis",
     "UrgencyLevel",
     "User",
     "UserRole",

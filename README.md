@@ -9,7 +9,7 @@ whichever nearby centre will actually see them soonest.
 | Phase | Scope | State |
 |---|---|---|
 | 1 | Auth, patients, admin, doctor records, pharmacy dispensing, QR access | **done** |
-| 2 | AI symptom triage (`/api/ai/*`) | planned |
+| 2 | AI symptom triage (`/api/ai/*`) | **done** |
 | 3 | Cross-hospital queue + SSE (`/api/queue/*`) | planned |
 | 4 | Doctor check-in, schedules, stats | planned |
 | 5 | Consent, document vault, consultation chart | planned |
@@ -53,6 +53,27 @@ All seeded accounts use the password `MediLink@123`.
 | Patient (with history) | `ravi.subramanian@example.com` (UHID `ML2500000003`) |
 | Pharmacy | `pharmacy@medilink.health` |
 | Diagnostic centre | `lab@medilink.health` |
+
+## AI triage
+
+`POST /api/ai/analyze-symptoms` maps a free-text symptom description to
+departments and an urgency level. It is routing, not diagnosis.
+
+Two providers sit behind one interface:
+
+- **Claude** (`claude-opus-5` by default, set `TRIAGE_MODEL` to change) using
+  structured outputs, so the response is schema-validated rather than parsed
+  from prose.
+- **A deterministic rule engine** — keyword and severity heuristics with an
+  explicit red-flag list.
+
+The rule engine runs whenever Claude is absent, slow, rate-limited, refused, or
+returns something unusable, and the response is marked `fallback_used: true`.
+**Triage never fails a request** — a 500 here would block the entire booking
+flow, so every failure path degrades instead of raising.
+
+Without `ANTHROPIC_API_KEY` the service runs rule-only and `/api/ai/health`
+reports `degraded` (not unhealthy — triage still works).
 
 ## Tests
 
