@@ -1,0 +1,3692 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "MediLink Backend",
+  "description": "MediLink Backend API - A comprehensive healthcare management system",
+  "version": "1.0.0"
+ },
+ "paths": {
+  "/api/v1/health": {
+   "get": {
+    "tags": [
+     "users",
+     "users",
+     "health"
+    ],
+    "summary": "Health Check",
+    "description": "Liveness plus a real database round-trip - a health check that never\ntouches the DB will happily report green while every request 500s.",
+    "operationId": "health_check_api_v1_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HealthCheckResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/users": {
+   "post": {
+    "tags": [
+     "users"
+    ],
+    "summary": "Create User",
+    "operationId": "create_user_api_v1_users_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserCreate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__user__UserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "users"
+    ],
+    "summary": "Get Users",
+    "operationId": "get_users_api_v1_users_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "skip",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Skip"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 100,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/src__schemas__user__UserResponse"
+         },
+         "title": "Response Get Users Api V1 Users Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/v1/users/{user_id}": {
+   "get": {
+    "tags": [
+     "users"
+    ],
+    "summary": "Get User",
+    "operationId": "get_user_api_v1_users__user_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__user__UserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "users"
+    ],
+    "summary": "Update User",
+    "operationId": "update_user_api_v1_users__user_id__put",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UserUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__user__UserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "users"
+    ],
+    "summary": "Delete User",
+    "operationId": "delete_user_api_v1_users__user_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/login": {
+   "post": {
+    "tags": [
+     "Authentication"
+    ],
+    "summary": "Login",
+    "description": "Authenticate user and return access token.",
+    "operationId": "login_api_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LoginResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/register/patient": {
+   "post": {
+    "tags": [
+     "Authentication"
+    ],
+    "summary": "Register Patient",
+    "description": "Self-service patient registration. Every other role is created by an admin.",
+    "operationId": "register_patient_api_auth_register_patient_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PatientCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/me": {
+   "get": {
+    "tags": [
+     "Authentication"
+    ],
+    "summary": "Get Current User Info",
+    "description": "Return the authenticated user. The frontend calls this on every page load\nto re-validate the cookie it hydrated from.",
+    "operationId": "get_current_user_info_api_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__healthcare__UserResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/me": {
+   "get": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Get My Profile",
+    "operationId": "get_my_profile_api_patients_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/me/qr-access": {
+   "post": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Generate Qr Access",
+    "description": "Generate QR code for temporary access to patient data.",
+    "operationId": "generate_qr_access_api_patients_me_qr_access_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/QRAccessRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/QRAccessResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/me/medical-records": {
+   "get": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Get My Medical Records",
+    "operationId": "get_my_medical_records_api_patients_me_medical_records_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/MedicalRecordResponse"
+         },
+         "type": "array",
+         "title": "Response Get My Medical Records Api Patients Me Medical Records Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/me/prescriptions": {
+   "get": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Get My Prescriptions",
+    "operationId": "get_my_prescriptions_api_patients_me_prescriptions_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PrescriptionResponse"
+         },
+         "type": "array",
+         "title": "Response Get My Prescriptions Api Patients Me Prescriptions Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/me/lab-reports": {
+   "get": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Get My Lab Reports",
+    "operationId": "get_my_lab_reports_api_patients_me_lab_reports_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/LabReportResponse"
+         },
+         "type": "array",
+         "title": "Response Get My Lab Reports Api Patients Me Lab Reports Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/patients/{uhid}": {
+   "get": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Get Patient By Uhid",
+    "description": "Look a patient up by UHID. Restricted to clinical and dispensing roles -\na patient may only fetch themselves this way.",
+    "operationId": "get_patient_by_uhid_api_patients__uhid__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "uhid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Uhid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/patients/qr-access/{access_token}": {
+   "post": {
+    "tags": [
+     "Patients"
+    ],
+    "summary": "Access Patient By Qr",
+    "description": "Redeem a patient-issued QR token for their profile.",
+    "operationId": "access_patient_by_qr_api_patients_qr_access__access_token__post",
+    "parameters": [
+     {
+      "name": "access_token",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Access Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/hospitals": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get Hospitals",
+    "operationId": "get_hospitals_api_admin_hospitals_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/HospitalResponse"
+         },
+         "type": "array",
+         "title": "Response Get Hospitals Api Admin Hospitals Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Create Hospital",
+    "operationId": "create_hospital_api_admin_hospitals_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/HospitalCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HospitalResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/doctors": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get Doctors",
+    "operationId": "get_doctors_api_admin_doctors_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/DoctorResponse"
+         },
+         "type": "array",
+         "title": "Response Get Doctors Api Admin Doctors Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Create Doctor",
+    "operationId": "create_doctor_api_admin_doctors_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DoctorCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoctorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/nurses": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get Nurses",
+    "operationId": "get_nurses_api_admin_nurses_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/NurseResponse"
+         },
+         "type": "array",
+         "title": "Response Get Nurses Api Admin Nurses Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Create Nurse",
+    "operationId": "create_nurse_api_admin_nurses_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NurseCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/NurseResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/pharmacies": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get Pharmacies",
+    "operationId": "get_pharmacies_api_admin_pharmacies_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PharmacyResponse"
+         },
+         "type": "array",
+         "title": "Response Get Pharmacies Api Admin Pharmacies Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Create Pharmacy",
+    "operationId": "create_pharmacy_api_admin_pharmacies_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PharmacyCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PharmacyResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/diagnostic-centers": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get Diagnostic Centers",
+    "operationId": "get_diagnostic_centers_api_admin_diagnostic_centers_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/DiagnosticCenterResponse"
+         },
+         "type": "array",
+         "title": "Response Get Diagnostic Centers Api Admin Diagnostic Centers Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Create Diagnostic Center",
+    "operationId": "create_diagnostic_center_api_admin_diagnostic_centers_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DiagnosticCenterCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DiagnosticCenterResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/admin/users": {
+   "get": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Get All Users",
+    "operationId": "get_all_users_api_admin_users_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "skip",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 0,
+       "title": "Skip"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "default": 100,
+       "title": "Limit"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/src__schemas__healthcare__UserResponse"
+         },
+         "title": "Response Get All Users Api Admin Users Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users/{user_id}/deactivate": {
+   "put": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Deactivate User",
+    "operationId": "deactivate_user_api_admin_users__user_id__deactivate_put",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__healthcare__UserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users/{user_id}/activate": {
+   "put": {
+    "tags": [
+     "Admin"
+    ],
+    "summary": "Activate User",
+    "operationId": "activate_user_api_admin_users__user_id__activate_put",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/src__schemas__healthcare__UserResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/me": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get My Doctor Profile",
+    "description": "The frontend reads `.id` off this to address every queue endpoint.",
+    "operationId": "get_my_doctor_profile_api_doctor_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoctorResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/patients/{uhid}": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get Patient",
+    "operationId": "get_patient_api_doctor_patients__uhid__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "uhid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Uhid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/medical-records": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Medical Record",
+    "operationId": "create_medical_record_api_doctor_medical_records_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/MedicalRecordCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MedicalRecordResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/medical-records/patient/{patient_id}": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get Patient Medical Records",
+    "operationId": "get_patient_medical_records_api_doctor_medical_records_patient__patient_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/MedicalRecordResponse"
+         },
+         "title": "Response Get Patient Medical Records Api Doctor Medical Records Patient  Patient Id  Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/prescriptions": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Prescription",
+    "operationId": "create_prescription_api_doctor_prescriptions_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PrescriptionCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PrescriptionResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/prescriptions/patient/{patient_id}": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get Patient Prescriptions",
+    "operationId": "get_patient_prescriptions_api_doctor_prescriptions_patient__patient_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "patient_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Patient Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PrescriptionResponse"
+         },
+         "title": "Response Get Patient Prescriptions Api Doctor Prescriptions Patient  Patient Id  Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/my-patients": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Get My Patients",
+    "description": "Every patient this doctor has ever recorded or prescribed for.",
+    "operationId": "get_my_patients_api_doctor_my_patients_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PatientResponse"
+         },
+         "type": "array",
+         "title": "Response Get My Patients Api Doctor My Patients Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/pharmacy/prescriptions/uhid/{uhid}": {
+   "get": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Get Prescriptions By Uhid",
+    "operationId": "get_prescriptions_by_uhid_api_pharmacy_prescriptions_uhid__uhid__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "uhid",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Uhid"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PrescriptionResponse"
+         },
+         "title": "Response Get Prescriptions By Uhid Api Pharmacy Prescriptions Uhid  Uhid  Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/pharmacy/prescriptions/qr/{access_token}": {
+   "get": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Get Prescriptions By Qr",
+    "operationId": "get_prescriptions_by_qr_api_pharmacy_prescriptions_qr__access_token__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "access_token",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Access Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/PrescriptionResponse"
+         },
+         "title": "Response Get Prescriptions By Qr Api Pharmacy Prescriptions Qr  Access Token  Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/pharmacy/patient-info/qr/{access_token}": {
+   "get": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Get Patient Info By Qr",
+    "operationId": "get_patient_info_by_qr_api_pharmacy_patient_info_qr__access_token__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "access_token",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Access Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/pharmacy/dispense/{prescription_id}": {
+   "post": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Dispense Prescription",
+    "description": "Hand over the medicine and burn the prescription so it cannot be reused.",
+    "operationId": "dispense_prescription_api_pharmacy_dispense__prescription_id__post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "prescription_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Prescription Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PrescriptionResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/pharmacy/dispensed-medicines": {
+   "get": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Get Dispensed Medicines",
+    "operationId": "get_dispensed_medicines_api_pharmacy_dispensed_medicines_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/PrescriptionResponse"
+         },
+         "type": "array",
+         "title": "Response Get Dispensed Medicines Api Pharmacy Dispensed Medicines Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/": {
+   "get": {
+    "tags": [
+     "root"
+    ],
+    "summary": "Root",
+    "operationId": "root__get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AccessType": {
+    "type": "string",
+    "enum": [
+     "full_access",
+     "prescription_only",
+     "reports_only",
+     "emergency_access"
+    ],
+    "title": "AccessType"
+   },
+   "DiagnosticCenterCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "services_offered": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Services Offered"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "latitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latitude"
+     },
+     "longitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Longitude"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "license_number",
+     "address",
+     "phone",
+     "email",
+     "password"
+    ],
+    "title": "DiagnosticCenterCreate"
+   },
+   "DiagnosticCenterResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "services_offered": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Services Offered"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "license_number",
+     "address",
+     "phone",
+     "email",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "DiagnosticCenterResponse"
+   },
+   "DoctorCreate": {
+    "properties": {
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "specialization": {
+      "type": "string",
+      "title": "Specialization"
+     },
+     "years_of_experience": {
+      "type": "integer",
+      "maximum": 80.0,
+      "minimum": 0.0,
+      "title": "Years Of Experience"
+     },
+     "qualification": {
+      "type": "string",
+      "title": "Qualification"
+     },
+     "consultation_fee": {
+      "anyOf": [
+       {
+        "type": "number",
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Consultation Fee"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "full_name": {
+      "type": "string",
+      "title": "Full Name"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "license_number",
+     "specialization",
+     "years_of_experience",
+     "qualification",
+     "email",
+     "full_name",
+     "password",
+     "hospital_id"
+    ],
+    "title": "DoctorCreate"
+   },
+   "DoctorResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "specialization": {
+      "type": "string",
+      "title": "Specialization"
+     },
+     "years_of_experience": {
+      "type": "integer",
+      "title": "Years Of Experience"
+     },
+     "qualification": {
+      "type": "string",
+      "title": "Qualification"
+     },
+     "consultation_fee": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Consultation Fee"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "license_number",
+     "specialization",
+     "years_of_experience",
+     "qualification",
+     "hospital_id",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "DoctorResponse"
+   },
+   "Gender": {
+    "type": "string",
+    "enum": [
+     "male",
+     "female",
+     "other"
+    ],
+    "title": "Gender"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "HealthCheckResponse": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Timestamp"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "message",
+     "timestamp"
+    ],
+    "title": "HealthCheckResponse"
+   },
+   "HospitalCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "latitude": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 90.0,
+        "minimum": -90.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latitude"
+     },
+     "longitude": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 180.0,
+        "minimum": -180.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Longitude"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "address",
+     "phone",
+     "email",
+     "license_number"
+    ],
+    "title": "HospitalCreate"
+   },
+   "HospitalResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "latitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latitude"
+     },
+     "longitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Longitude"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "address",
+     "phone",
+     "email",
+     "license_number",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "HospitalResponse"
+   },
+   "LabReportResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "test_name": {
+      "type": "string",
+      "title": "Test Name"
+     },
+     "test_type": {
+      "type": "string",
+      "title": "Test Type"
+     },
+     "results": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Results"
+     },
+     "reference_ranges": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Ranges"
+     },
+     "interpretation": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interpretation"
+     },
+     "technician_notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Technician Notes"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "diagnostic_center_id": {
+      "type": "integer",
+      "title": "Diagnostic Center Id"
+     },
+     "requested_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Requested Date"
+     },
+     "completed_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Completed Date"
+     },
+     "status": {
+      "$ref": "#/components/schemas/TestStatus"
+     },
+     "report_file_path": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Report File Path"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "test_name",
+     "test_type",
+     "patient_id",
+     "diagnostic_center_id",
+     "requested_date",
+     "status",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "LabReportResponse"
+   },
+   "LoginRequest": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "password"
+    ],
+    "title": "LoginRequest"
+   },
+   "LoginResponse": {
+    "properties": {
+     "access_token": {
+      "type": "string",
+      "title": "Access Token"
+     },
+     "token_type": {
+      "type": "string",
+      "title": "Token Type",
+      "default": "bearer"
+     },
+     "user": {
+      "$ref": "#/components/schemas/src__schemas__healthcare__UserResponse"
+     },
+     "expires_in": {
+      "type": "integer",
+      "title": "Expires In"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access_token",
+     "user",
+     "expires_in"
+    ],
+    "title": "LoginResponse"
+   },
+   "MedicalRecordCreate": {
+    "properties": {
+     "chief_complaint": {
+      "type": "string",
+      "title": "Chief Complaint"
+     },
+     "diagnosis": {
+      "type": "string",
+      "title": "Diagnosis"
+     },
+     "treatment_plan": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Treatment Plan"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "vitals": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Vitals"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "chief_complaint",
+     "diagnosis",
+     "patient_id"
+    ],
+    "title": "MedicalRecordCreate"
+   },
+   "MedicalRecordResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "chief_complaint": {
+      "type": "string",
+      "title": "Chief Complaint"
+     },
+     "diagnosis": {
+      "type": "string",
+      "title": "Diagnosis"
+     },
+     "treatment_plan": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Treatment Plan"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "vitals": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Vitals"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "visit_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Visit Date"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "doctor_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "chief_complaint",
+     "diagnosis",
+     "patient_id",
+     "doctor_id",
+     "visit_date",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "MedicalRecordResponse"
+   },
+   "MedicineResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "generic_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Generic Name"
+     },
+     "manufacturer": {
+      "type": "string",
+      "title": "Manufacturer"
+     },
+     "strength": {
+      "type": "string",
+      "title": "Strength"
+     },
+     "form": {
+      "type": "string",
+      "title": "Form"
+     },
+     "price_per_unit": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Price Per Unit"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "manufacturer",
+     "strength",
+     "form",
+     "is_active",
+     "created_at"
+    ],
+    "title": "MedicineResponse"
+   },
+   "NurseCreate": {
+    "properties": {
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "department": {
+      "type": "string",
+      "title": "Department"
+     },
+     "shift": {
+      "type": "string",
+      "title": "Shift"
+     },
+     "years_of_experience": {
+      "type": "integer",
+      "maximum": 80.0,
+      "minimum": 0.0,
+      "title": "Years Of Experience"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "full_name": {
+      "type": "string",
+      "title": "Full Name"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "license_number",
+     "department",
+     "shift",
+     "years_of_experience",
+     "email",
+     "full_name",
+     "password",
+     "hospital_id"
+    ],
+    "title": "NurseCreate"
+   },
+   "NurseResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "department": {
+      "type": "string",
+      "title": "Department"
+     },
+     "shift": {
+      "type": "string",
+      "title": "Shift"
+     },
+     "years_of_experience": {
+      "type": "integer",
+      "title": "Years Of Experience"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "license_number",
+     "department",
+     "shift",
+     "years_of_experience",
+     "hospital_id",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "NurseResponse"
+   },
+   "PatientCreate": {
+    "properties": {
+     "first_name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "First Name"
+     },
+     "last_name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Last Name"
+     },
+     "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "title": "Date Of Birth"
+     },
+     "gender": {
+      "$ref": "#/components/schemas/Gender"
+     },
+     "blood_group": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Blood Group"
+     },
+     "phone": {
+      "type": "string",
+      "maxLength": 32,
+      "minLength": 6,
+      "title": "Phone"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "emergency_contact_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Emergency Contact Name"
+     },
+     "emergency_contact_phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Emergency Contact Phone"
+     },
+     "medical_allergies": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Medical Allergies"
+     },
+     "chronic_conditions": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Chronic Conditions"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "allergies": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Allergies"
+     },
+     "medical_history": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Medical History"
+     }
+    },
+    "type": "object",
+    "required": [
+     "first_name",
+     "last_name",
+     "date_of_birth",
+     "gender",
+     "phone",
+     "address",
+     "email",
+     "password"
+    ],
+    "title": "PatientCreate"
+   },
+   "PatientResponse": {
+    "properties": {
+     "first_name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "First Name"
+     },
+     "last_name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Last Name"
+     },
+     "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "title": "Date Of Birth"
+     },
+     "gender": {
+      "$ref": "#/components/schemas/Gender"
+     },
+     "blood_group": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Blood Group"
+     },
+     "phone": {
+      "type": "string",
+      "maxLength": 32,
+      "minLength": 6,
+      "title": "Phone"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "emergency_contact_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Emergency Contact Name"
+     },
+     "emergency_contact_phone": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Emergency Contact Phone"
+     },
+     "medical_allergies": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Medical Allergies"
+     },
+     "chronic_conditions": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Chronic Conditions"
+     },
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "uhid": {
+      "type": "string",
+      "title": "Uhid"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "first_name",
+     "last_name",
+     "date_of_birth",
+     "gender",
+     "phone",
+     "address",
+     "id",
+     "uhid",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "PatientResponse"
+   },
+   "PharmacyCreate": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     },
+     "latitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latitude"
+     },
+     "longitude": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Longitude"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "license_number",
+     "address",
+     "phone",
+     "email",
+     "password"
+    ],
+    "title": "PharmacyCreate"
+   },
+   "PharmacyResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "license_number": {
+      "type": "string",
+      "title": "License Number"
+     },
+     "address": {
+      "type": "string",
+      "title": "Address"
+     },
+     "phone": {
+      "type": "string",
+      "title": "Phone"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "license_number",
+     "address",
+     "phone",
+     "email",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "PharmacyResponse"
+   },
+   "PrescriptionCreate": {
+    "properties": {
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "medicines": {
+      "items": {
+       "$ref": "#/components/schemas/PrescriptionMedicineCreate"
+      },
+      "type": "array",
+      "title": "Medicines"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "follow_up_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Follow Up Date"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "medicines"
+    ],
+    "title": "PrescriptionCreate"
+   },
+   "PrescriptionMedicineCreate": {
+    "properties": {
+     "medicine_id": {
+      "type": "integer",
+      "title": "Medicine Id"
+     },
+     "dosage": {
+      "type": "string",
+      "title": "Dosage"
+     },
+     "frequency": {
+      "type": "string",
+      "title": "Frequency"
+     },
+     "duration": {
+      "type": "string",
+      "title": "Duration"
+     },
+     "instructions": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Instructions"
+     },
+     "quantity_prescribed": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "Quantity Prescribed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "medicine_id",
+     "dosage",
+     "frequency",
+     "duration",
+     "quantity_prescribed"
+    ],
+    "title": "PrescriptionMedicineCreate"
+   },
+   "PrescriptionMedicineResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "medicine_id": {
+      "type": "integer",
+      "title": "Medicine Id"
+     },
+     "dosage": {
+      "type": "string",
+      "title": "Dosage"
+     },
+     "frequency": {
+      "type": "string",
+      "title": "Frequency"
+     },
+     "duration": {
+      "type": "string",
+      "title": "Duration"
+     },
+     "instructions": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Instructions"
+     },
+     "quantity_prescribed": {
+      "type": "integer",
+      "title": "Quantity Prescribed"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "medicine": {
+      "$ref": "#/components/schemas/MedicineResponse"
+     },
+     "medicine_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Medicine Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "medicine_id",
+     "dosage",
+     "frequency",
+     "duration",
+     "quantity_prescribed",
+     "created_at",
+     "medicine"
+    ],
+    "title": "PrescriptionMedicineResponse"
+   },
+   "PrescriptionResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "prescription_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Prescription Date"
+     },
+     "status": {
+      "$ref": "#/components/schemas/PrescriptionStatus"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "follow_up_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Follow Up Date"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "medicines": {
+      "items": {
+       "$ref": "#/components/schemas/PrescriptionMedicineResponse"
+      },
+      "type": "array",
+      "title": "Medicines",
+      "default": []
+     },
+     "doctor_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "patient_id",
+     "doctor_id",
+     "prescription_date",
+     "status",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "PrescriptionResponse"
+   },
+   "PrescriptionStatus": {
+    "type": "string",
+    "enum": [
+     "active",
+     "dispensed",
+     "expired",
+     "cancelled"
+    ],
+    "title": "PrescriptionStatus"
+   },
+   "QRAccessRequest": {
+    "properties": {
+     "access_type": {
+      "$ref": "#/components/schemas/AccessType"
+     },
+     "duration_hours": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 168.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Duration Hours"
+     },
+     "expires_minutes": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 10080.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expires Minutes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access_type"
+    ],
+    "title": "QRAccessRequest"
+   },
+   "QRAccessResponse": {
+    "properties": {
+     "qr_code": {
+      "type": "string",
+      "title": "Qr Code"
+     },
+     "access_token": {
+      "type": "string",
+      "title": "Access Token"
+     },
+     "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expires At"
+     },
+     "access_type": {
+      "$ref": "#/components/schemas/AccessType"
+     }
+    },
+    "type": "object",
+    "required": [
+     "qr_code",
+     "access_token",
+     "expires_at",
+     "access_type"
+    ],
+    "title": "QRAccessResponse"
+   },
+   "TestStatus": {
+    "type": "string",
+    "enum": [
+     "requested",
+     "in_progress",
+     "completed",
+     "cancelled"
+    ],
+    "title": "TestStatus"
+   },
+   "UserCreate": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "format": "email",
+      "title": "Email"
+     },
+     "username": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 3,
+      "title": "Username"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "password": {
+      "type": "string",
+      "maxLength": 128,
+      "minLength": 8,
+      "title": "Password"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "username",
+     "password"
+    ],
+    "title": "UserCreate"
+   },
+   "UserRole": {
+    "type": "string",
+    "enum": [
+     "admin",
+     "doctor",
+     "nurse",
+     "pharmacy",
+     "diagnostic_center",
+     "patient"
+    ],
+    "title": "UserRole"
+   },
+   "UserUpdate": {
+    "properties": {
+     "email": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "email"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "username": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Username"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "password": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 128,
+        "minLength": 8
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Password"
+     },
+     "is_active": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Active"
+     }
+    },
+    "type": "object",
+    "title": "UserUpdate"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "src__schemas__healthcare__UserResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "username": {
+      "type": "string",
+      "title": "Username"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "role": {
+      "$ref": "#/components/schemas/UserRole"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "username",
+     "role",
+     "is_active",
+     "created_at"
+    ],
+    "title": "UserResponse"
+   },
+   "src__schemas__user__UserResponse": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "username": {
+      "type": "string",
+      "title": "Username"
+     },
+     "full_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Full Name"
+     },
+     "role": {
+      "type": "string",
+      "title": "Role"
+     },
+     "is_active": {
+      "type": "boolean",
+      "title": "Is Active"
+     },
+     "is_superuser": {
+      "type": "boolean",
+      "title": "Is Superuser",
+      "default": false
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "username",
+     "role",
+     "is_active",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "UserResponse"
+   }
+  },
+  "securitySchemes": {
+   "HTTPBearer": {
+    "type": "http",
+    "scheme": "bearer"
+   }
+  }
+ }
+}

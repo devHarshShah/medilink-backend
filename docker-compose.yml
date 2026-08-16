@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: medilink
+      POSTGRES_PASSWORD: medilink
+      POSTGRES_DB: medilink
+    ports:
+      - "5432:5432"
+    volumes:
+      # Postgres 18 moved PGDATA to /var/lib/postgresql/18/docker and declares its
+      # VOLUME at /var/lib/postgresql - mounting the old .../data path would put the
+      # real data dir outside the volume.
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medilink"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: medilink
+      MINIO_ROOT_PASSWORD: medilink123
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # web console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 medilink medilink123 &&
+      mc mb --ignore-existing local/medilink-documents &&
+      echo 'bucket ready'
+      "
+
+  api:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://medilink:medilink@postgres:5432/medilink
+      REDIS_URL: redis://redis:6379/0
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY: medilink
+      S3_SECRET_KEY: medilink123
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      DEBUG: "true"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/app/src
+      - ./alembic:/app/alembic
+    command: >
+      /bin/sh -c "
+      alembic upgrade head &&
+      uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+volumes:
+  postgres_data:
+  minio_data:
