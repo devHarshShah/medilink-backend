@@ -13,6 +13,7 @@ from src.models.clinical import (
     Prescription,
     PrescriptionMedicine,
 )
+from src.models.consent import ConsentAuditLog, MedicalDocument, PatientConsent
 from src.models.doctor_ops import DoctorCheckIn, DoctorLeave, DoctorSchedule
 from src.models.enums import (
     AccessType,
@@ -40,6 +41,7 @@ from src.models.user import User
 __all__ = [
     "AccessType",
     "Base",
+    "ConsentAuditLog",
     "ConsentStatus",
     "ConsentType",
     "DiagnosticCenter",
@@ -54,10 +56,12 @@ __all__ = [
     "Hospital",
     "LabReport",
     "LeaveType",
+    "MedicalDocument",
     "MedicalRecord",
     "Medicine",
     "Nurse",
     "Patient",
+    "PatientConsent",
     "Pharmacy",
     "Prescription",
     "PrescriptionMedicine",

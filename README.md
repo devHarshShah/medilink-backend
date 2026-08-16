@@ -12,7 +12,7 @@ whichever nearby centre will actually see them soonest.
 | 2 | AI symptom triage (`/api/ai/*`) | **done** |
 | 3 | Cross-hospital queue + SSE (`/api/queue/*`) | **done** |
 | 4 | Doctor check-in, schedules, stats | **done** |
-| 5 | Consent, document vault, consultation chart | planned |
+| 5 | Consent, document vault, consultation chart | **done** |
 | 6 | Diagnostic centre / lab loop | planned |
 
 ## Quick start
@@ -126,6 +126,41 @@ was waiting for you.
 > **Single worker.** The re-scorer runs one task per process. Running multiple
 > uvicorn workers would run several copies — the moves are idempotent, but a
 > multi-worker deployment should elect a single runner.
+
+## Consent
+
+A patient shares categories, not their whole record: prescriptions without
+psychiatric history, allergies without next-of-kin. `src/services/consent.py`
+gates every clinical read a doctor makes. The frontend only requests the tabs
+it thinks are permitted — that is a convenience, and this module assumes the
+client is lying.
+
+Two gates, both required:
+
+1. The doctor must be the one treating this patient, **and the consultation
+   must still be live**. A finished consultation does not leave a standing key
+   to someone's record.
+2. The patient must have granted that specific category.
+
+The narrowest matching grant wins (consultation → doctor → hospital →
+standing), so a broad ongoing-care consent cannot silently widen a deliberately
+narrow per-consultation one. Document consent narrows further by type
+allow-list and per-document exclusions. Every read — granted **and denied** —
+is written to `consent_audit_logs`: a patient who cannot see who opened their
+record has not really been given control of it.
+
+Identity (name, UHID, age, phone) is available without consent — a doctor needs
+to know who they are treating. Allergies, chronic conditions and emergency
+contacts are each separately consented.
+
+## Document vault
+
+Uploads go to MinIO, never the database. The file's **real** type is sniffed
+from its magic number, because a browser-supplied content type is a claim, not
+evidence. Object keys are generated, never derived from the client filename
+(traversal, and two patients uploading `report.pdf`), and are never exposed —
+downloads redirect to a 5-minute presigned URL, since that link will end up in
+browser history.
 
 ## Tests
 
