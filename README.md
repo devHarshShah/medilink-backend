@@ -13,7 +13,7 @@ whichever nearby centre will actually see them soonest.
 | 3 | Cross-hospital queue + SSE (`/api/queue/*`) | **done** |
 | 4 | Doctor check-in, schedules, stats | **done** |
 | 5 | Consent, document vault, consultation chart | **done** |
-| 6 | Diagnostic centre / lab loop | planned |
+| 6 | Diagnostic centre / lab loop | **done** |
 
 ## Quick start
 
@@ -161,6 +161,18 @@ evidence. Object keys are generated, never derived from the client filename
 (traversal, and two patients uploading `report.pdf`), and are never exposed —
 downloads redirect to a 5-minute presigned URL, since that link will end up in
 browser history.
+
+## The lab loop
+
+A doctor orders a test during a consultation, the patient shows their QR at the
+counter, the centre publishes the result, and it appears for the patient *and*
+the ordering doctor at once — no paper, no chasing.
+
+A completed test cannot reopen and results cannot be republished: the ordering
+doctor may already have acted on them, so a correction is a fresh test. A test
+cannot be completed with nothing in it — a blank "completed" result is
+indistinguishable from one nobody filled in. Attachments are sniffed for their
+real type, same as patient uploads.
 
 ## Tests
 

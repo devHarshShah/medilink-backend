@@ -3520,6 +3520,539 @@
     }
    }
   },
+  "/api/diagnostics/requests": {
+   "get": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Centre Requests",
+    "operationId": "centre_requests_api_diagnostics_requests_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "status_filter",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/TestStatus"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Status Filter"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/LabReportDetail"
+         },
+         "title": "Response Centre Requests Api Diagnostics Requests Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/patient/qr/{access_token}": {
+   "get": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Patient By Qr",
+    "description": "Identify a walk-in patient from the QR on their phone.",
+    "operationId": "patient_by_qr_api_diagnostics_patient_qr__access_token__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "access_token",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Access Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PatientResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/requests/qr/{access_token}": {
+   "get": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Requests By Qr",
+    "description": "The tests waiting for the patient standing at the counter.",
+    "operationId": "requests_by_qr_api_diagnostics_requests_qr__access_token__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "access_token",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Access Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/LabReportDetail"
+         },
+         "title": "Response Requests By Qr Api Diagnostics Requests Qr  Access Token  Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/requests/{report_id}/status": {
+   "patch": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Update Request Status",
+    "operationId": "update_request_status_api_diagnostics_requests__report_id__status_patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "report_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Report Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LabStatusUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LabReportDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/requests/{report_id}/results": {
+   "put": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Publish Results",
+    "description": "Publish the result. Visible to the patient and the ordering doctor at once.",
+    "operationId": "publish_results_api_diagnostics_requests__report_id__results_put",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "report_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Report Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LabResultUpdate"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LabReportDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/requests/{report_id}/attachment": {
+   "post": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Attach Report File",
+    "operationId": "attach_report_file_api_diagnostics_requests__report_id__attachment_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "report_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Report Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_attach_report_file_api_diagnostics_requests__report_id__attachment_post"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LabReportDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Download Attachment",
+    "operationId": "download_attachment_api_diagnostics_requests__report_id__attachment_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "report_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Report Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/diagnostics/stats": {
+   "get": {
+    "tags": [
+     "Diagnostics"
+    ],
+    "summary": "Centre Stats",
+    "operationId": "centre_stats_api_diagnostics_stats_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DiagnosticCenterStats"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/lab-requests": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "My Lab Requests",
+    "description": "Tests this doctor ordered, newest first. Results land here when the lab\npublishes them -- no chasing paper.",
+    "operationId": "my_lab_requests_api_doctor_lab_requests_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/LabReportDetail"
+         },
+         "type": "array",
+         "title": "Response My Lab Requests Api Doctor Lab Requests Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Lab Request",
+    "description": "Order a test for a patient.",
+    "operationId": "create_lab_request_api_doctor_lab_requests_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LabRequestCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LabReportDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/consultation/{queue_id}/lab-request": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Lab Request From Consultation",
+    "description": "Order a test from inside a live consultation.",
+    "operationId": "create_lab_request_from_consultation_api_doctor_consultation__queue_id__lab_request_post",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "queue_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Queue Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LabRequestFromConsultation"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LabReportDetail"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/": {
    "get": {
     "tags": [
@@ -3723,6 +4256,20 @@
      "total_available"
     ],
     "title": "AvailableDoctorsResponse"
+   },
+   "Body_attach_report_file_api_diagnostics_requests__report_id__attachment_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_attach_report_file_api_diagnostics_requests__report_id__attachment_post"
    },
    "Body_upload_document_api_patients_me_documents_upload_post": {
     "properties": {
@@ -4812,6 +5359,34 @@
     ],
     "title": "DiagnosticCenterResponse"
    },
+   "DiagnosticCenterStats": {
+    "properties": {
+     "pending_requests": {
+      "type": "integer",
+      "title": "Pending Requests"
+     },
+     "in_progress": {
+      "type": "integer",
+      "title": "In Progress"
+     },
+     "completed_today": {
+      "type": "integer",
+      "title": "Completed Today"
+     },
+     "total_completed": {
+      "type": "integer",
+      "title": "Total Completed"
+     }
+    },
+    "type": "object",
+    "required": [
+     "pending_requests",
+     "in_progress",
+     "completed_today",
+     "total_completed"
+    ],
+    "title": "DiagnosticCenterStats"
+   },
    "DoctorCreate": {
     "properties": {
      "license_number": {
@@ -5752,6 +6327,154 @@
     ],
     "title": "JoinQueueResponse"
    },
+   "LabReportDetail": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "patient_uhid": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Uhid"
+     },
+     "patient_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Name"
+     },
+     "diagnostic_center_id": {
+      "type": "integer",
+      "title": "Diagnostic Center Id"
+     },
+     "requested_by_doctor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Requested By Doctor Id"
+     },
+     "requested_by_doctor_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Requested By Doctor Name"
+     },
+     "test_name": {
+      "type": "string",
+      "title": "Test Name"
+     },
+     "test_type": {
+      "type": "string",
+      "title": "Test Type"
+     },
+     "results": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Results"
+     },
+     "reference_ranges": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Ranges"
+     },
+     "interpretation": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interpretation"
+     },
+     "technician_notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Technician Notes"
+     },
+     "status": {
+      "$ref": "#/components/schemas/TestStatus"
+     },
+     "requested_date": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Requested Date"
+     },
+     "completed_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Completed Date"
+     },
+     "has_attachment": {
+      "type": "boolean",
+      "title": "Has Attachment",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "patient_id",
+     "diagnostic_center_id",
+     "test_name",
+     "test_type",
+     "status",
+     "requested_date"
+    ],
+    "title": "LabReportDetail"
+   },
    "LabReportResponse": {
     "properties": {
      "id": {
@@ -5889,6 +6612,149 @@
      "lab_reports"
     ],
     "title": "LabReportsEnvelope"
+   },
+   "LabRequestCreate": {
+    "properties": {
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "diagnostic_center_id": {
+      "type": "integer",
+      "title": "Diagnostic Center Id"
+     },
+     "test_name": {
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Test Name"
+     },
+     "test_type": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Test Type"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "patient_id",
+     "diagnostic_center_id",
+     "test_name",
+     "test_type"
+    ],
+    "title": "LabRequestCreate"
+   },
+   "LabRequestFromConsultation": {
+    "properties": {
+     "diagnostic_center_id": {
+      "type": "integer",
+      "title": "Diagnostic Center Id"
+     },
+     "test_name": {
+      "type": "string",
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Test Name"
+     },
+     "test_type": {
+      "type": "string",
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Test Type"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "diagnostic_center_id",
+     "test_name",
+     "test_type"
+    ],
+    "title": "LabRequestFromConsultation"
+   },
+   "LabResultUpdate": {
+    "properties": {
+     "results": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Results"
+     },
+     "reference_ranges": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reference Ranges"
+     },
+     "interpretation": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Interpretation"
+     },
+     "technician_notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Technician Notes"
+     }
+    },
+    "type": "object",
+    "title": "LabResultUpdate"
+   },
+   "LabStatusUpdate": {
+    "properties": {
+     "new_status": {
+      "$ref": "#/components/schemas/TestStatus"
+     }
+    },
+    "type": "object",
+    "required": [
+     "new_status"
+    ],
+    "title": "LabStatusUpdate"
    },
    "LeaveCreate": {
     "properties": {

@@ -9,6 +9,7 @@ from src.api import (
     ai,
     auth,
     consultation,
+    diagnostics,
     doctor,
     doctor_ops,
     documents,
@@ -73,6 +74,8 @@ app.include_router(doctor_ops.router)
 app.include_router(doctor_ops.pharmacy_router)
 app.include_router(documents.router)
 app.include_router(consultation.router)
+app.include_router(diagnostics.router)
+app.include_router(diagnostics.doctor_router)
 
 
 @app.get("/", tags=["root"])
