@@ -1762,6 +1762,604 @@
     }
    }
   },
+  "/api/queue/join": {
+   "post": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Join",
+    "description": "Join a queue. The server picks the best doctor and hospital from the\ncandidates offered and returns the runners-up as alternatives.",
+    "operationId": "join_api_queue_join_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/JoinQueueRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JoinQueueResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/queue/my-queues": {
+   "get": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "My Queues",
+    "description": "Envelope, not a bare array -- my-queues/page.tsx reads `response.queues`.",
+    "operationId": "my_queues_api_queue_my_queues_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MyQueuesResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/queue/hospitals": {
+   "get": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Queue Hospitals",
+    "operationId": "queue_hospitals_api_queue_hospitals_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/HospitalResponse"
+         },
+         "type": "array",
+         "title": "Response Queue Hospitals Api Queue Hospitals Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/queue/available-doctors": {
+   "get": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Available Doctors",
+    "description": "Doctors the patient can pick from, ranked by predicted total wait.",
+    "operationId": "available_doctors_api_queue_available_doctors_get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "queue_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "$ref": "#/components/schemas/QueueType",
+       "default": "hospital_specific"
+      }
+     },
+     {
+      "name": "hospital_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Hospital Id"
+      }
+     },
+     {
+      "name": "specialization",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Specialization"
+      }
+     },
+     {
+      "name": "specializations",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Specializations"
+      }
+     },
+     {
+      "name": "include_general",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Include General"
+      }
+     },
+     {
+      "name": "latitude",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 90,
+         "minimum": -90
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Latitude"
+      }
+     },
+     {
+      "name": "longitude",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "number",
+         "maximum": 180,
+         "minimum": -180
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Longitude"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AvailableDoctorsResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/queue/status/{queue_id}": {
+   "get": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Queue Status",
+    "operationId": "queue_status_api_queue_status__queue_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "queue_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Queue Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/QueueStatusResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Update Queue Status",
+    "operationId": "update_queue_status_api_queue_status__queue_id__patch",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "queue_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Queue Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/UpdateQueueStatusRequest"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/queue/cancel/{queue_id}": {
+   "delete": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Cancel Queue",
+    "operationId": "cancel_queue_api_queue_cancel__queue_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "queue_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Queue Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/queue/doctor/{doctor_id}": {
+   "get": {
+    "tags": [
+     "Queue"
+    ],
+    "summary": "Doctor Queue",
+    "description": "The doctor's working list. Ordered the way patients are actually called:\npriority first, then arrival.",
+    "operationId": "doctor_queue_api_queue_doctor__doctor_id__get",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Doctor Id"
+      }
+     },
+     {
+      "name": "hospital_id",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Hospital Id"
+      }
+     },
+     {
+      "name": "queue_type",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "$ref": "#/components/schemas/QueueType"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Queue Type"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoctorQueueResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/events/token": {
+   "post": {
+    "tags": [
+     "Events"
+    ],
+    "summary": "Issue Stream Token",
+    "description": "Mint a short-lived token for EventSource to use in the query string.",
+    "operationId": "issue_stream_token_api_events_token_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/StreamTokenResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/events/queue/{queue_id}": {
+   "get": {
+    "tags": [
+     "Events"
+    ],
+    "summary": "Stream Queue",
+    "description": "Live position, re-assignment and call events for one queue entry.",
+    "operationId": "stream_queue_api_events_queue__queue_id__get",
+    "parameters": [
+     {
+      "name": "queue_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Queue Id"
+      }
+     },
+     {
+      "name": "token",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/events/doctor/{doctor_id}": {
+   "get": {
+    "tags": [
+     "Events"
+    ],
+    "summary": "Stream Doctor Queue",
+    "description": "Live updates for a doctor's working list.",
+    "operationId": "stream_doctor_queue_api_events_doctor__doctor_id__get",
+    "parameters": [
+     {
+      "name": "doctor_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Doctor Id"
+      }
+     },
+     {
+      "name": "token",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Token"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/": {
    "get": {
     "tags": [
@@ -1793,6 +2391,140 @@
      "emergency_access"
     ],
     "title": "AccessType"
+   },
+   "AvailableDoctorResponse": {
+    "properties": {
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "specialization": {
+      "type": "string",
+      "title": "Specialization"
+     },
+     "qualification": {
+      "type": "string",
+      "title": "Qualification"
+     },
+     "years_of_experience": {
+      "type": "integer",
+      "title": "Years Of Experience"
+     },
+     "consultation_fee": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Consultation Fee"
+     },
+     "current_queue_size": {
+      "type": "integer",
+      "title": "Current Queue Size"
+     },
+     "estimated_wait_time": {
+      "type": "integer",
+      "title": "Estimated Wait Time"
+     },
+     "availability_status": {
+      "type": "string",
+      "title": "Availability Status"
+     },
+     "match_score": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Match Score"
+     },
+     "distance": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id",
+     "name",
+     "specialization",
+     "qualification",
+     "years_of_experience",
+     "current_queue_size",
+     "estimated_wait_time",
+     "availability_status"
+    ],
+    "title": "AvailableDoctorResponse"
+   },
+   "AvailableDoctorsResponse": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "doctors": {
+      "items": {
+       "$ref": "#/components/schemas/AvailableDoctorResponse"
+      },
+      "type": "array",
+      "title": "Doctors"
+     },
+     "total_available": {
+      "type": "integer",
+      "title": "Total Available"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id",
+     "hospital_name",
+     "doctors",
+     "total_available"
+    ],
+    "title": "AvailableDoctorsResponse"
    },
    "DiagnosticCenterCreate": {
     "properties": {
@@ -1998,6 +2730,135 @@
      "hospital_id"
     ],
     "title": "DoctorCreate"
+   },
+   "DoctorQueueInfo": {
+    "properties": {
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "doctor_name": {
+      "type": "string",
+      "title": "Doctor Name"
+     },
+     "specialization": {
+      "type": "string",
+      "title": "Specialization"
+     },
+     "match_score": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Match Score"
+     },
+     "queue_size": {
+      "type": "integer",
+      "title": "Queue Size"
+     },
+     "estimated_wait_time": {
+      "type": "integer",
+      "title": "Estimated Wait Time"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     },
+     "distance": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance"
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id",
+     "doctor_name",
+     "specialization",
+     "queue_size",
+     "estimated_wait_time"
+    ],
+    "title": "DoctorQueueInfo"
+   },
+   "DoctorQueueResponse": {
+    "properties": {
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "queue_type": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/QueueType"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "queue": {
+      "items": {
+       "$ref": "#/components/schemas/PatientQueueInfo"
+      },
+      "type": "array",
+      "title": "Queue"
+     },
+     "total_waiting": {
+      "type": "integer",
+      "title": "Total Waiting"
+     },
+     "total_in_consultation": {
+      "type": "integer",
+      "title": "Total In Consultation"
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id",
+     "queue",
+     "total_waiting",
+     "total_in_consultation"
+    ],
+    "title": "DoctorQueueResponse"
    },
    "DoctorRecommendation": {
     "properties": {
@@ -2294,6 +3155,244 @@
      "updated_at"
     ],
     "title": "HospitalResponse"
+   },
+   "JoinQueueRequest": {
+    "properties": {
+     "doctor_ids": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Doctor Ids"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "symptoms_description": {
+      "type": "string",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Symptoms Description"
+     },
+     "ai_recommendation": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ai Recommendation"
+     },
+     "priority": {
+      "$ref": "#/components/schemas/QueuePriority",
+      "default": "normal"
+     },
+     "queue_type": {
+      "$ref": "#/components/schemas/QueueType",
+      "default": "hospital_specific"
+     },
+     "patient_location": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PatientLocation"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_ids",
+     "symptoms_description"
+    ],
+    "title": "JoinQueueRequest"
+   },
+   "JoinQueueResponse": {
+    "properties": {
+     "success": {
+      "type": "boolean",
+      "title": "Success"
+     },
+     "queue_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Queue Id"
+     },
+     "doctor_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Id"
+     },
+     "doctor_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Name"
+     },
+     "doctor_specialization": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Doctor Specialization"
+     },
+     "queue_type": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/QueueType"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "queue_number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Queue Number"
+     },
+     "estimated_wait_time": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Estimated Wait Time"
+     },
+     "current_position": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Current Position"
+     },
+     "assigned_hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assigned Hospital Id"
+     },
+     "assigned_hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assigned Hospital Name"
+     },
+     "alternative_options": {
+      "items": {
+       "$ref": "#/components/schemas/DoctorQueueInfo"
+      },
+      "type": "array",
+      "title": "Alternative Options",
+      "default": []
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "suggested_doctors": {
+      "items": {
+       "$ref": "#/components/schemas/DoctorQueueInfo"
+      },
+      "type": "array",
+      "title": "Suggested Doctors",
+      "default": []
+     },
+     "leave_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Leave At"
+     },
+     "travel_time_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Travel Time Minutes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "success"
+    ],
+    "title": "JoinQueueResponse"
    },
    "LabReportResponse": {
     "properties": {
@@ -2680,6 +3779,23 @@
     ],
     "title": "MedicineResponse"
    },
+   "MyQueuesResponse": {
+    "properties": {
+     "queues": {
+      "items": {
+       "$ref": "#/components/schemas/QueueStatusResponse"
+      },
+      "type": "array",
+      "title": "Queues"
+     }
+    },
+    "type": "object",
+    "required": [
+     "queues"
+    ],
+    "title": "MyQueuesResponse",
+    "description": "The page reads `response.queues`, not a bare array."
+   },
    "NurseCreate": {
     "properties": {
      "license_number": {
@@ -2921,6 +4037,134 @@
      "password"
     ],
     "title": "PatientCreate"
+   },
+   "PatientLocation": {
+    "properties": {
+     "latitude": {
+      "type": "number",
+      "maximum": 90.0,
+      "minimum": -90.0,
+      "title": "Latitude"
+     },
+     "longitude": {
+      "type": "number",
+      "maximum": 180.0,
+      "minimum": -180.0,
+      "title": "Longitude"
+     }
+    },
+    "type": "object",
+    "required": [
+     "latitude",
+     "longitude"
+    ],
+    "title": "PatientLocation"
+   },
+   "PatientQueueInfo": {
+    "properties": {
+     "queue_id": {
+      "type": "integer",
+      "title": "Queue Id"
+     },
+     "patient_uhid": {
+      "type": "string",
+      "title": "Patient Uhid"
+     },
+     "patient_name": {
+      "type": "string",
+      "title": "Patient Name"
+     },
+     "queue_number": {
+      "type": "integer",
+      "title": "Queue Number"
+     },
+     "queue_type": {
+      "$ref": "#/components/schemas/QueueType"
+     },
+     "status": {
+      "$ref": "#/components/schemas/QueueStatus"
+     },
+     "priority": {
+      "$ref": "#/components/schemas/QueuePriority"
+     },
+     "symptoms_description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symptoms Description"
+     },
+     "estimated_wait_time": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Estimated Wait Time"
+     },
+     "joined_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Joined At"
+     },
+     "is_emergency": {
+      "type": "boolean",
+      "title": "Is Emergency"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     },
+     "assigned_hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assigned Hospital Name"
+     },
+     "ai_summary": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ai Summary"
+     }
+    },
+    "type": "object",
+    "required": [
+     "queue_id",
+     "patient_uhid",
+     "patient_name",
+     "queue_number",
+     "queue_type",
+     "status",
+     "priority",
+     "joined_at",
+     "is_emergency"
+    ],
+    "title": "PatientQueueInfo"
    },
    "PatientResponse": {
     "properties": {
@@ -3488,6 +4732,272 @@
     ],
     "title": "QRAccessResponse"
    },
+   "QueuePriority": {
+    "type": "string",
+    "enum": [
+     "low",
+     "normal",
+     "high",
+     "emergency"
+    ],
+    "title": "QueuePriority"
+   },
+   "QueueStatus": {
+    "type": "string",
+    "enum": [
+     "waiting",
+     "in_consultation",
+     "completed",
+     "cancelled",
+     "no_show"
+    ],
+    "title": "QueueStatus"
+   },
+   "QueueStatusResponse": {
+    "properties": {
+     "queue_id": {
+      "type": "integer",
+      "title": "Queue Id"
+     },
+     "patient_id": {
+      "type": "integer",
+      "title": "Patient Id"
+     },
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "doctor_name": {
+      "type": "string",
+      "title": "Doctor Name"
+     },
+     "doctor_specialization": {
+      "type": "string",
+      "title": "Doctor Specialization"
+     },
+     "queue_type": {
+      "$ref": "#/components/schemas/QueueType"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     },
+     "assigned_hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assigned Hospital Id"
+     },
+     "assigned_hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Assigned Hospital Name"
+     },
+     "queue_number": {
+      "type": "integer",
+      "title": "Queue Number"
+     },
+     "current_position": {
+      "type": "integer",
+      "title": "Current Position"
+     },
+     "status": {
+      "$ref": "#/components/schemas/QueueStatus"
+     },
+     "priority": {
+      "$ref": "#/components/schemas/QueuePriority"
+     },
+     "estimated_wait_time": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Estimated Wait Time"
+     },
+     "joined_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Joined At"
+     },
+     "consultation_started_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Consultation Started At"
+     },
+     "consultation_completed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Consultation Completed At"
+     },
+     "patient_notified_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Notified At"
+     },
+     "is_emergency": {
+      "type": "boolean",
+      "title": "Is Emergency"
+     },
+     "ai_summary": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ai Summary"
+     },
+     "symptoms_description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Symptoms Description"
+     },
+     "leave_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Leave At"
+     },
+     "travel_time_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Travel Time Minutes"
+     },
+     "distance_km": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance Km"
+     },
+     "locked_in": {
+      "type": "boolean",
+      "title": "Locked In",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "queue_id",
+     "patient_id",
+     "doctor_id",
+     "doctor_name",
+     "doctor_specialization",
+     "queue_type",
+     "queue_number",
+     "current_position",
+     "status",
+     "priority",
+     "joined_at",
+     "is_emergency"
+    ],
+    "title": "QueueStatusResponse"
+   },
+   "QueueType": {
+    "type": "string",
+    "enum": [
+     "hospital_specific",
+     "cross_hospital"
+    ],
+    "title": "QueueType"
+   },
+   "StreamTokenResponse": {
+    "properties": {
+     "token": {
+      "type": "string",
+      "title": "Token"
+     },
+     "expires_in": {
+      "type": "integer",
+      "title": "Expires In"
+     }
+    },
+    "type": "object",
+    "required": [
+     "token",
+     "expires_in"
+    ],
+    "title": "StreamTokenResponse",
+    "description": "EventSource cannot set headers, so the SSE token rides in the query\nstring. Kept short-lived because a query string leaks into logs."
+   },
    "SymptomsAnalysisRequest": {
     "properties": {
      "symptoms_description": {
@@ -3639,6 +5149,29 @@
      "fallback_available"
     ],
     "title": "TriageHealthResponse"
+   },
+   "UpdateQueueStatusRequest": {
+    "properties": {
+     "new_status": {
+      "$ref": "#/components/schemas/QueueStatus"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "new_status"
+    ],
+    "title": "UpdateQueueStatusRequest"
    },
    "UrgencyLevel": {
     "type": "string",
