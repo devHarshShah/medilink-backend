@@ -4,7 +4,18 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api import admin, ai, auth, doctor, events, patients, pharmacy, queue, v1_users
+from src.api import (
+    admin,
+    ai,
+    auth,
+    doctor,
+    doctor_ops,
+    events,
+    patients,
+    pharmacy,
+    queue,
+    v1_users,
+)
 from src.core.config import settings
 from src.core.errors import register_exception_handlers
 from src.services.events import close_events
@@ -56,6 +67,8 @@ app.include_router(pharmacy.router)
 app.include_router(ai.router)
 app.include_router(queue.router)
 app.include_router(events.router)
+app.include_router(doctor_ops.router)
+app.include_router(doctor_ops.pharmacy_router)
 
 
 @app.get("/", tags=["root"])

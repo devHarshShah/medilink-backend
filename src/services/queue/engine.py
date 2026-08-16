@@ -10,7 +10,8 @@ from datetime import UTC, date, datetime
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.enums import QueuePriority, QueueStatus, QueueType
+from src.models.doctor_ops import DoctorCheckIn
+from src.models.enums import DoctorAvailabilityStatus, QueuePriority, QueueStatus, QueueType
 from src.models.organizations import Hospital
 from src.models.people import Doctor, Patient
 from src.models.queue import QueueEntry
@@ -40,20 +41,46 @@ ACTIVE_STATUSES = (QueueStatus.WAITING, QueueStatus.IN_CONSULTATION)
 async def doctor_locations(db: AsyncSession, doctor_ids: list[int] | None = None) -> list[tuple]:
     """Where each doctor can currently be consulted, as (Doctor, Hospital, User).
 
-    Today that is a doctor's primary hospital. Phase 4 replaces the body of this
-    function with live check-ins; everything downstream is written against this
-    seam so nothing else has to change.
+    An open check-in is the truth: a doctor consults at several hospitals across
+    a week, and sending patients to a building they left this morning is the
+    failure this whole feature exists to prevent.
+
+    Doctors who have never checked in anywhere fall back to their primary
+    hospital, so the queue still works before anyone adopts check-in, and so a
+    freshly seeded database is usable.
     """
-    stmt = (
+    base = (
         select(Doctor, Hospital, User)
-        .join(Hospital, Doctor.hospital_id == Hospital.id)
         .join(User, Doctor.user_id == User.id)
-        .where(Doctor.is_active.is_(True), Hospital.is_active.is_(True), User.is_active.is_(True))
+        .where(Doctor.is_active.is_(True), User.is_active.is_(True), Hospital.is_active.is_(True))
     )
     if doctor_ids:
-        stmt = stmt.where(Doctor.id.in_(doctor_ids))
-    result = await db.execute(stmt)
-    return list(result.all())
+        base = base.where(Doctor.id.in_(doctor_ids))
+
+    checked_in = await db.execute(
+        base.join(DoctorCheckIn, DoctorCheckIn.doctor_id == Doctor.id)
+        .join(Hospital, DoctorCheckIn.hospital_id == Hospital.id)
+        .where(
+            DoctorCheckIn.check_out_time.is_(None),
+            # A doctor on a break or offline is present but not taking new
+            # patients, so they must not attract queue assignments.
+            DoctorCheckIn.presence_status.in_(
+                [DoctorAvailabilityStatus.AVAILABLE, DoctorAvailabilityStatus.BUSY]
+            ),
+        )
+    )
+    rows = list(checked_in.all())
+    located = {doctor.id for doctor, _, _ in rows}
+
+    ever_checked_in = set((await db.execute(select(DoctorCheckIn.doctor_id).distinct())).scalars().all())
+
+    fallback = await db.execute(
+        base.join(Hospital, Doctor.hospital_id == Hospital.id).where(
+            Doctor.id.notin_(located | ever_checked_in) if (located | ever_checked_in) else True
+        )
+    )
+    rows.extend(fallback.all())
+    return rows
 
 
 async def queue_size_for(db: AsyncSession, doctor_id: int, hospital_id: int) -> int:

@@ -11,7 +11,7 @@ whichever nearby centre will actually see them soonest.
 | 1 | Auth, patients, admin, doctor records, pharmacy dispensing, QR access | **done** |
 | 2 | AI symptom triage (`/api/ai/*`) | **done** |
 | 3 | Cross-hospital queue + SSE (`/api/queue/*`) | **done** |
-| 4 | Doctor check-in, schedules, stats | planned |
+| 4 | Doctor check-in, schedules, stats | **done** |
 | 5 | Consent, document vault, consultation chart | planned |
 | 6 | Diagnostic centre / lab loop | planned |
 
@@ -114,6 +114,14 @@ exchanges its bearer token for a short-lived stream token
 type that is useless as a bearer credential, because query strings land in
 access logs. The frontend keeps polling as a fallback, slowed to 2 minutes
 while the stream is healthy.
+
+**Doctor availability is a live fact.** The queue reads open check-ins, not a
+doctor's profile: a doctor consults at several hospitals across a week, and
+sending patients to a building they left this morning is the failure check-in
+exists to prevent. A doctor on a break is present but attracts no new patients.
+Doctors who have never used check-in fall back to their primary hospital, so
+the queue works before anyone adopts it. Checking out re-scores everyone who
+was waiting for you.
 
 > **Single worker.** The re-scorer runs one task per process. Running multiple
 > uvicorn workers would run several copies — the moves are idempotent, but a

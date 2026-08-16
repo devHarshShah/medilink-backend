@@ -2360,6 +2360,477 @@
     }
    }
   },
+  "/api/doctor/hospitals": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Doctor Hospitals",
+    "description": "Every hospital this doctor can work at, with live presence and queue depth.",
+    "operationId": "doctor_hospitals_api_doctor_hospitals_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/DoctorHospitalResponse"
+         },
+         "type": "array",
+         "title": "Response Doctor Hospitals Api Doctor Hospitals Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/status": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Doctor Status",
+    "operationId": "doctor_status_api_doctor_status_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoctorStatusResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/check-in": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Check In",
+    "operationId": "check_in_api_doctor_check_in_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CheckInRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/check-out": {
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Check Out",
+    "operationId": "check_out_api_doctor_check_out_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CheckOutRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/presence-status": {
+   "put": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Update Presence",
+    "operationId": "update_presence_api_doctor_presence_status_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PresenceStatusRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/schedules": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "List Schedules",
+    "operationId": "list_schedules_api_doctor_schedules_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/ScheduleResponse"
+         },
+         "type": "array",
+         "title": "Response List Schedules Api Doctor Schedules Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Schedule",
+    "operationId": "create_schedule_api_doctor_schedules_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ScheduleCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ScheduleResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/schedules/{schedule_id}": {
+   "delete": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Delete Schedule",
+    "operationId": "delete_schedule_api_doctor_schedules__schedule_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "schedule_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Schedule Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/leaves": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "List Leaves",
+    "operationId": "list_leaves_api_doctor_leaves_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/LeaveResponse"
+         },
+         "type": "array",
+         "title": "Response List Leaves Api Doctor Leaves Get"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   },
+   "post": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Create Leave",
+    "operationId": "create_leave_api_doctor_leaves_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LeaveCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/LeaveResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/doctor/leaves/{leave_id}": {
+   "delete": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Delete Leave",
+    "operationId": "delete_leave_api_doctor_leaves__leave_id__delete",
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ],
+    "parameters": [
+     {
+      "name": "leave_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Leave Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/doctor/stats": {
+   "get": {
+    "tags": [
+     "Doctor"
+    ],
+    "summary": "Doctor Stats",
+    "description": "Real numbers for the doctor dashboard, replacing its hardcoded mocks.",
+    "operationId": "doctor_stats_api_doctor_stats_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoctorStatsResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
+  "/api/pharmacy/stats": {
+   "get": {
+    "tags": [
+     "Pharmacy"
+    ],
+    "summary": "Pharmacy Stats",
+    "description": "Real numbers for the pharmacy dashboard, replacing its mockStats block.",
+    "operationId": "pharmacy_stats_api_pharmacy_stats_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PharmacyStatsResponse"
+        }
+       }
+      }
+     }
+    },
+    "security": [
+     {
+      "HTTPBearer": []
+     }
+    ]
+   }
+  },
   "/": {
    "get": {
     "tags": [
@@ -2391,6 +2862,44 @@
      "emergency_access"
     ],
     "title": "AccessType"
+   },
+   "AvailabilityEntry": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "is_checked_in": {
+      "type": "boolean",
+      "title": "Is Checked In"
+     },
+     "presence_status": {
+      "type": "string",
+      "title": "Presence Status"
+     },
+     "current_queue_size": {
+      "type": "integer",
+      "title": "Current Queue Size"
+     },
+     "estimated_wait_time": {
+      "type": "integer",
+      "title": "Estimated Wait Time"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id",
+     "hospital_name",
+     "is_checked_in",
+     "presence_status",
+     "current_queue_size",
+     "estimated_wait_time"
+    ],
+    "title": "AvailabilityEntry"
    },
    "AvailableDoctorResponse": {
     "properties": {
@@ -2525,6 +3034,76 @@
      "total_available"
     ],
     "title": "AvailableDoctorsResponse"
+   },
+   "CheckInRequest": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id"
+    ],
+    "title": "CheckInRequest"
+   },
+   "CheckOutRequest": {
+    "properties": {
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     },
+     "next_hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Hospital Id"
+     }
+    },
+    "type": "object",
+    "title": "CheckOutRequest"
+   },
+   "CurrentHospital": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "check_in_time": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Check In Time"
+     },
+     "duration_minutes": {
+      "type": "integer",
+      "title": "Duration Minutes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id",
+     "hospital_name",
+     "check_in_time",
+     "duration_minutes"
+    ],
+    "title": "CurrentHospital"
    },
    "DiagnosticCenterCreate": {
     "properties": {
@@ -2730,6 +3309,82 @@
      "hospital_id"
     ],
     "title": "DoctorCreate"
+   },
+   "DoctorHospitalResponse": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "hospital_address": {
+      "type": "string",
+      "title": "Hospital Address"
+     },
+     "is_checked_in": {
+      "type": "boolean",
+      "title": "Is Checked In"
+     },
+     "presence_status": {
+      "type": "string",
+      "title": "Presence Status"
+     },
+     "current_queue_size": {
+      "type": "integer",
+      "title": "Current Queue Size"
+     },
+     "estimated_wait_time": {
+      "type": "integer",
+      "title": "Estimated Wait Time"
+     },
+     "active_checkin_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Active Checkin Id"
+     },
+     "schedule_today": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ScheduleToday"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "distance_from_current": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distance From Current"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id",
+     "hospital_name",
+     "hospital_address",
+     "is_checked_in",
+     "presence_status",
+     "current_queue_size",
+     "estimated_wait_time"
+    ],
+    "title": "DoctorHospitalResponse",
+    "description": "Note the `hospital_`-prefixed keys -- doctor-checkin.tsx reads these,\nnot the plain `id`/`name` of HospitalResponse."
    },
    "DoctorQueueInfo": {
     "properties": {
@@ -2972,6 +3627,126 @@
      "updated_at"
     ],
     "title": "DoctorResponse"
+   },
+   "DoctorStatsResponse": {
+    "properties": {
+     "today_consultations": {
+      "type": "integer",
+      "title": "Today Consultations"
+     },
+     "current_queue_size": {
+      "type": "integer",
+      "title": "Current Queue Size"
+     },
+     "avg_consultation_time": {
+      "type": "number",
+      "title": "Avg Consultation Time"
+     },
+     "total_wait_time_saved": {
+      "type": "integer",
+      "title": "Total Wait Time Saved"
+     },
+     "patient_satisfaction": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Patient Satisfaction"
+     },
+     "upcoming_schedule": {
+      "items": {
+       "$ref": "#/components/schemas/UpcomingScheduleEntry"
+      },
+      "type": "array",
+      "title": "Upcoming Schedule",
+      "default": []
+     },
+     "pending_reports": {
+      "type": "integer",
+      "title": "Pending Reports",
+      "default": 0
+     },
+     "active_prescriptions": {
+      "type": "integer",
+      "title": "Active Prescriptions",
+      "default": 0
+     },
+     "total_patients": {
+      "type": "integer",
+      "title": "Total Patients",
+      "default": 0
+     }
+    },
+    "type": "object",
+    "required": [
+     "today_consultations",
+     "current_queue_size",
+     "avg_consultation_time",
+     "total_wait_time_saved"
+    ],
+    "title": "DoctorStatsResponse"
+   },
+   "DoctorStatusResponse": {
+    "properties": {
+     "doctor_id": {
+      "type": "integer",
+      "title": "Doctor Id"
+     },
+     "doctor_name": {
+      "type": "string",
+      "title": "Doctor Name"
+     },
+     "is_checked_in": {
+      "type": "boolean",
+      "title": "Is Checked In"
+     },
+     "current_hospital": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/CurrentHospital"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "presence_status": {
+      "type": "string",
+      "title": "Presence Status"
+     },
+     "last_activity": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Activity"
+     },
+     "availabilities": {
+      "items": {
+       "$ref": "#/components/schemas/AvailabilityEntry"
+      },
+      "type": "array",
+      "title": "Availabilities",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "doctor_id",
+     "doctor_name",
+     "is_checked_in",
+     "presence_status"
+    ],
+    "title": "DoctorStatusResponse"
    },
    "Gender": {
     "type": "string",
@@ -3515,6 +4290,193 @@
      "updated_at"
     ],
     "title": "LabReportResponse"
+   },
+   "LeaveCreate": {
+    "properties": {
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "leave_type": {
+      "$ref": "#/components/schemas/LeaveType"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+     },
+     "start_time": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start Time"
+     },
+     "end_time": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End Time"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason"
+     }
+    },
+    "type": "object",
+    "required": [
+     "leave_type",
+     "start_date",
+     "end_date"
+    ],
+    "title": "LeaveCreate"
+   },
+   "LeaveResponse": {
+    "properties": {
+     "leave_id": {
+      "type": "integer",
+      "title": "Leave Id"
+     },
+     "hospital_id": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hospital Name"
+     },
+     "leave_type": {
+      "type": "string",
+      "title": "Leave Type"
+     },
+     "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+     },
+     "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+     },
+     "start_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Start Time"
+     },
+     "end_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "End Time"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason"
+     },
+     "is_approved": {
+      "type": "boolean",
+      "title": "Is Approved"
+     },
+     "approved_by": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Approved By"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "leave_id",
+     "leave_type",
+     "start_date",
+     "end_date",
+     "is_approved",
+     "created_at"
+    ],
+    "title": "LeaveResponse"
+   },
+   "LeaveType": {
+    "type": "string",
+    "enum": [
+     "vacation",
+     "sick",
+     "conference",
+     "emergency"
+    ],
+    "title": "LeaveType"
    },
    "LoginRequest": {
     "properties": {
@@ -4410,6 +5372,34 @@
     ],
     "title": "PharmacyResponse"
    },
+   "PharmacyStatsResponse": {
+    "properties": {
+     "total_prescriptions": {
+      "type": "integer",
+      "title": "Total Prescriptions"
+     },
+     "today_dispensed": {
+      "type": "integer",
+      "title": "Today Dispensed"
+     },
+     "pending_dispensing": {
+      "type": "integer",
+      "title": "Pending Dispensing"
+     },
+     "total_revenue": {
+      "type": "number",
+      "title": "Total Revenue"
+     }
+    },
+    "type": "object",
+    "required": [
+     "total_prescriptions",
+     "today_dispensed",
+     "pending_dispensing",
+     "total_revenue"
+    ],
+    "title": "PharmacyStatsResponse"
+   },
    "PrescriptionCreate": {
     "properties": {
      "patient_id": {
@@ -4665,6 +5655,20 @@
      "cancelled"
     ],
     "title": "PrescriptionStatus"
+   },
+   "PresenceStatusRequest": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "pattern": "^(available|busy|on_break|break|present|offline|emergency)$",
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "PresenceStatusRequest"
    },
    "QRAccessRequest": {
     "properties": {
@@ -4979,6 +5983,276 @@
     ],
     "title": "QueueType"
    },
+   "ScheduleCreate": {
+    "properties": {
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "day_of_week": {
+      "type": "integer",
+      "maximum": 6.0,
+      "minimum": 0.0,
+      "title": "Day Of Week"
+     },
+     "start_time": {
+      "type": "string",
+      "format": "time",
+      "title": "Start Time"
+     },
+     "end_time": {
+      "type": "string",
+      "format": "time",
+      "title": "End Time"
+     },
+     "break_start_time": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break Start Time"
+     },
+     "break_end_time": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break End Time"
+     },
+     "slot_duration": {
+      "type": "integer",
+      "maximum": 120.0,
+      "minimum": 5.0,
+      "title": "Slot Duration",
+      "default": 15
+     },
+     "max_patients_per_slot": {
+      "type": "integer",
+      "maximum": 20.0,
+      "minimum": 1.0,
+      "title": "Max Patients Per Slot",
+      "default": 1
+     },
+     "is_available": {
+      "type": "boolean",
+      "title": "Is Available",
+      "default": true
+     },
+     "effective_from": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effective From"
+     },
+     "effective_until": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effective Until"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_id",
+     "day_of_week",
+     "start_time",
+     "end_time"
+    ],
+    "title": "ScheduleCreate"
+   },
+   "ScheduleResponse": {
+    "properties": {
+     "schedule_id": {
+      "type": "integer",
+      "title": "Schedule Id"
+     },
+     "hospital_id": {
+      "type": "integer",
+      "title": "Hospital Id"
+     },
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "day_of_week": {
+      "type": "integer",
+      "title": "Day Of Week"
+     },
+     "day_name": {
+      "type": "string",
+      "title": "Day Name"
+     },
+     "start_time": {
+      "type": "string",
+      "title": "Start Time"
+     },
+     "end_time": {
+      "type": "string",
+      "title": "End Time"
+     },
+     "break_start_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break Start Time"
+     },
+     "break_end_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break End Time"
+     },
+     "slot_duration": {
+      "type": "integer",
+      "title": "Slot Duration"
+     },
+     "max_patients_per_slot": {
+      "type": "integer",
+      "title": "Max Patients Per Slot"
+     },
+     "is_available": {
+      "type": "boolean",
+      "title": "Is Available"
+     },
+     "effective_from": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effective From"
+     },
+     "effective_until": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effective Until"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "schedule_id",
+     "hospital_id",
+     "hospital_name",
+     "day_of_week",
+     "day_name",
+     "start_time",
+     "end_time",
+     "slot_duration",
+     "max_patients_per_slot",
+     "is_available"
+    ],
+    "title": "ScheduleResponse"
+   },
+   "ScheduleToday": {
+    "properties": {
+     "start_time": {
+      "type": "string",
+      "title": "Start Time"
+     },
+     "end_time": {
+      "type": "string",
+      "title": "End Time"
+     },
+     "break_start_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break Start Time"
+     },
+     "break_end_time": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Break End Time"
+     },
+     "slot_duration": {
+      "type": "integer",
+      "title": "Slot Duration"
+     }
+    },
+    "type": "object",
+    "required": [
+     "start_time",
+     "end_time",
+     "slot_duration"
+    ],
+    "title": "ScheduleToday"
+   },
    "StreamTokenResponse": {
     "properties": {
      "token": {
@@ -5149,6 +6423,34 @@
      "fallback_available"
     ],
     "title": "TriageHealthResponse"
+   },
+   "UpcomingScheduleEntry": {
+    "properties": {
+     "hospital_name": {
+      "type": "string",
+      "title": "Hospital Name"
+     },
+     "start_time": {
+      "type": "string",
+      "title": "Start Time"
+     },
+     "end_time": {
+      "type": "string",
+      "title": "End Time"
+     },
+     "patient_count": {
+      "type": "integer",
+      "title": "Patient Count"
+     }
+    },
+    "type": "object",
+    "required": [
+     "hospital_name",
+     "start_time",
+     "end_time",
+     "patient_count"
+    ],
+    "title": "UpcomingScheduleEntry"
    },
    "UpdateQueueStatusRequest": {
     "properties": {
