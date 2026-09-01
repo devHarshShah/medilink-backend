@@ -572,14 +572,6 @@ async def pharmacy_stats(pharmacy: CurrentPharmacy, db: DbSession):
             )
         ).scalar_one()
     )
-    pending = int(
-        (
-            await db.execute(
-                select(func.count(Prescription.id)).where(Prescription.status == PrescriptionStatus.ACTIVE)
-            )
-        ).scalar_one()
-    )
-
     # Sum the actual line items rather than guessing an average basket.
     from src.models.clinical import Medicine, PrescriptionMedicine
 
@@ -595,6 +587,5 @@ async def pharmacy_stats(pharmacy: CurrentPharmacy, db: DbSession):
     return PharmacyStatsResponse(
         total_prescriptions=total,
         today_dispensed=today_dispensed,
-        pending_dispensing=pending,
         total_revenue=round(float(revenue or 0.0), 2),
     )

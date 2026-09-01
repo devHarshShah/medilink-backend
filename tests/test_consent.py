@@ -602,3 +602,70 @@ async def test_medicine_search_finds_catalogue_entries(client, chart, dh):
     resp = await client.get("/api/consultation/medicines/search", params={"query": "testi"}, headers=dh)
     assert resp.status_code == 200
     assert any(m["name"] == "Testicillin" for m in resp.json())
+
+
+# --------------------------------------------------------------------------
+# Standing access outside a live consultation: any active grant that names
+# the doctor or a hospital they practise at is honoured, not ongoing-care only.
+# --------------------------------------------------------------------------
+async def test_specific_consultation_grant_to_this_doctor_allows_standing_read(client, chart, dh, ph):
+    await client.post(
+        "/api/patients/me/consents",
+        json=_consent(doctor_id=chart["doctor_id"], allow_medical_history=True),
+        headers=ph,
+    )
+    pid = chart["patient_id"]
+
+    records = await client.get(f"/api/doctor/patients/id/{pid}/medical-records", headers=dh)
+    assert records.status_code == 200, records.text
+    assert len(records.json()) == 1
+
+    summary = await client.get(f"/api/doctor/patients/id/{pid}/summary", headers=dh)
+    assert summary.status_code == 200
+
+    # A category the grant does not cover is still refused.
+    labs = await client.get(f"/api/doctor/patients/id/{pid}/lab-reports", headers=dh)
+    assert labs.status_code == 403
+
+
+async def test_hospital_scoped_grant_allows_standing_read(client, chart, dh, ph):
+    await client.post(
+        "/api/patients/me/consents",
+        json=_consent(hospital_id=chart["hospital_id"], allow_lab_reports=True),
+        headers=ph,
+    )
+    resp = await client.get(
+        f"/api/doctor/patients/id/{chart['patient_id']}/lab-reports", headers=dh
+    )
+    assert resp.status_code == 200, resp.text
+    assert len(resp.json()) == 1
+
+
+async def test_grant_naming_another_doctor_does_not_leak(client, chart, dh, ph):
+    await client.post(
+        "/api/patients/me/consents",
+        json=_consent(doctor_id=chart["other_doctor_id"], allow_medical_history=True),
+        headers=ph,
+    )
+    resp = await client.get(
+        f"/api/doctor/patients/id/{chart['patient_id']}/medical-records", headers=dh
+    )
+    assert resp.status_code == 403
+
+
+async def test_revoked_standing_grant_is_refused(client, chart, dh, ph):
+    created = await client.post(
+        "/api/patients/me/consents",
+        json=_consent(doctor_id=chart["doctor_id"], allow_medical_history=True),
+        headers=ph,
+    )
+    consent_id = created.json()["id"]
+    pid = chart["patient_id"]
+    assert (
+        await client.get(f"/api/doctor/patients/id/{pid}/medical-records", headers=dh)
+    ).status_code == 200
+
+    await client.put(f"/api/patients/me/consents/{consent_id}/revoke", headers=ph)
+    assert (
+        await client.get(f"/api/doctor/patients/id/{pid}/medical-records", headers=dh)
+    ).status_code == 403

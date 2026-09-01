@@ -187,6 +187,109 @@ async def test_emergency_triage_overrides_a_client_supplied_priority(
         assert entry.is_emergency is True
 
 
+async def _add_doctor(session_factory, hospital_id, license_no, specialization, avg=10.0):
+    from src.core.security import hash_password
+    from src.models.enums import UserRole
+
+    async with session_factory() as db:
+        user = User(
+            email=f"{license_no.lower()}@example.com",
+            username=license_no.lower(),
+            full_name=f"Dr {license_no}",
+            hashed_password=hash_password("DoctorPass123"),
+            role=UserRole.DOCTOR,
+        )
+        db.add(user)
+        await db.flush()
+        doctor = Doctor(
+            user_id=user.id,
+            hospital_id=hospital_id,
+            license_number=license_no,
+            specialization=specialization,
+            years_of_experience=10,
+            qualification="MBBS, MD",
+            avg_consultation_minutes=avg,
+        )
+        db.add(doctor)
+        await db.commit()
+        return doctor.id
+
+
+def _cardiology_high():
+    return {
+        "urgency_level": "high",
+        "recommended_specializations": [
+            {"specialization": "Cardiology", "priority": 1, "reason": "chest pain"},
+        ],
+    }
+
+
+async def test_high_urgency_join_is_routed_to_a_specialist_not_the_chosen_generalist(
+    client, world, patient_headers, session_factory
+):
+    """The patient only picked a General Medicine doctor, but triage flags a
+    high-urgency cardiac case -- assignment must widen to a Cardiologist."""
+    cardio_id = await _add_doctor(session_factory, world["far_hospital"], "D-CARD", "Cardiology")
+
+    resp = await client.post(
+        "/api/queue/join",
+        json=_join_body(
+            world,
+            doctor_ids=[world["near_doctor"]],  # generalist only
+            ai_recommendation=_cardiology_high(),
+        ),
+        headers=patient_headers,
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["success"] is True
+    assert body["doctor_id"] == cardio_id
+    assert body["doctor_specialization"] == "Cardiology"
+
+
+async def test_low_urgency_join_keeps_the_chosen_generalist(
+    client, world, patient_headers, session_factory
+):
+    """Same shape, but non-urgent: the soft match penalty applies and the
+    faster generalist the patient picked is kept."""
+    await _add_doctor(session_factory, world["far_hospital"], "D-CARD2", "Cardiology")
+
+    resp = await client.post(
+        "/api/queue/join",
+        json=_join_body(
+            world,
+            doctor_ids=[world["near_doctor"]],
+            ai_recommendation={
+                "urgency_level": "low",
+                "recommended_specializations": [
+                    {"specialization": "Cardiology", "priority": 1, "reason": "x"}
+                ],
+            },
+        ),
+        headers=patient_headers,
+    )
+    body = resp.json()
+    assert body["success"] is True
+    assert body["doctor_id"] == world["near_doctor"]
+
+
+async def test_high_urgency_join_fails_softly_when_no_specialist_exists(
+    client, world, patient_headers
+):
+    resp = await client.post(
+        "/api/queue/join",
+        json=_join_body(
+            world, doctor_ids=[world["near_doctor"]], ai_recommendation=_cardiology_high()
+        ),
+        headers=patient_headers,
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["success"] is False
+    assert "cardiology" in body["error"].lower()
+    assert "emergency" in body["error"].lower()
+
+
 async def test_hospital_specific_join_pins_to_that_hospital(client, world, patient_headers):
     resp = await client.post(
         "/api/queue/join",

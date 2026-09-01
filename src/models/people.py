@@ -32,7 +32,12 @@ class Patient(Base, TimestampMixin):
     chronic_conditions: Mapped[str | None] = mapped_column(Text)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
+    # The patient's chosen primary doctor. Standing access to shared record
+    # categories is carried by an ongoing-care PatientConsent, not this column.
+    family_doctor_id: Mapped[int | None] = mapped_column(ForeignKey("doctors.id"), index=True)
+
     user = relationship("User", back_populates="patient")
+    family_doctor = relationship("Doctor", foreign_keys=[family_doctor_id])
 
     @property
     def full_name(self) -> str:

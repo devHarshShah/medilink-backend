@@ -10,7 +10,7 @@ from src.core.security import decode_token
 from src.db.session import get_db
 from src.models.enums import UserRole
 from src.models.organizations import DiagnosticCenter, Pharmacy
-from src.models.people import Doctor, Patient
+from src.models.people import Doctor, Nurse, Patient
 from src.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -105,8 +105,20 @@ async def get_current_diagnostic_center(
     return center
 
 
+async def get_current_nurse(
+    user: Annotated[User, Depends(require_role(UserRole.NURSE))],
+    db: DbSession,
+) -> Nurse:
+    result = await db.execute(select(Nurse).where(Nurse.user_id == user.id))
+    nurse = result.scalar_one_or_none()
+    if nurse is None:
+        raise HTTPException(status_code=404, detail="Nurse profile not found")
+    return nurse
+
+
 CurrentPatient = Annotated[Patient, Depends(get_current_patient)]
 CurrentDoctor = Annotated[Doctor, Depends(get_current_doctor)]
 CurrentPharmacy = Annotated[Pharmacy, Depends(get_current_pharmacy)]
 CurrentDiagnosticCenter = Annotated[DiagnosticCenter, Depends(get_current_diagnostic_center)]
+CurrentNurse = Annotated[Nurse, Depends(get_current_nurse)]
 AdminUser = Annotated[User, Depends(require_role(UserRole.ADMIN))]

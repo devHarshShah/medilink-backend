@@ -173,6 +173,34 @@ def is_worth_moving(current_score: float, best_score: float) -> bool:
     return (current_score - best_score) > settings.queue_reassign_hysteresis_minutes
 
 
+# Urgency levels at which doctor selection stops being a soft preference. Above
+# this bar the match penalty is not enough -- a faster generalist must not win
+# over the right specialist -- so assignment is hard-restricted to the top
+# recommended specialisation (see engine.select_candidates).
+SEVERITY_LOCK_URGENCIES = frozenset({"emergency", "high"})
+
+
+def is_severity_locked(ai_recommendation: dict | None) -> bool:
+    """True when triage urgency demands a specialist, not just prefers one."""
+    return bool(ai_recommendation) and (
+        ai_recommendation.get("urgency_level") in SEVERITY_LOCK_URGENCIES
+    )
+
+
+def top_specialization(ai_recommendation: dict | None) -> str | None:
+    """The priority-1 specialisation from triage (lower priority int = better).
+
+    Returns None when there is no triage result or it named no specialisation --
+    callers then fall back to the ordinary soft-penalty ranking.
+    """
+    recs = (ai_recommendation or {}).get("recommended_specializations") or []
+    ranked = sorted(
+        (r for r in recs if isinstance(r, dict) and r.get("specialization")),
+        key=lambda r: r.get("priority", 99),
+    )
+    return ranked[0]["specialization"] if ranked else None
+
+
 def priority_rank(priority: QueuePriority) -> int:
     """Higher is served first."""
     return priority.weight

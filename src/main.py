@@ -14,6 +14,7 @@ from src.api import (
     doctor_ops,
     documents,
     events,
+    nurse,
     patients,
     pharmacy,
     queue,
@@ -76,6 +77,7 @@ app.include_router(documents.router)
 app.include_router(consultation.router)
 app.include_router(diagnostics.router)
 app.include_router(diagnostics.doctor_router)
+app.include_router(nurse.router)
 
 
 @app.get("/", tags=["root"])

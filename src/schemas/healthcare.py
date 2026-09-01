@@ -7,7 +7,7 @@ only line up if this module keeps its name and its UserResponse.
 
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 from src.models.enums import AccessType, Gender, PrescriptionStatus, TestStatus, UserRole
 
@@ -68,6 +68,21 @@ class PatientCreate(PatientBase):
     medical_history: str | None = None
 
 
+class PatientUpdate(BaseModel):
+    """Self-service profile edit. Identity fields (email, uhid, date_of_birth,
+    gender) and the password are deliberately not editable here."""
+
+    first_name: str | None = Field(default=None, min_length=1, max_length=100)
+    last_name: str | None = Field(default=None, min_length=1, max_length=100)
+    phone: str | None = Field(default=None, min_length=6, max_length=32)
+    address: str | None = None
+    blood_group: str | None = None
+    emergency_contact_name: str | None = None
+    emergency_contact_phone: str | None = None
+    medical_allergies: str | None = None
+    chronic_conditions: str | None = None
+
+
 class PatientResponse(PatientBase):
     model_config = ConfigDict(from_attributes=True)
 
@@ -76,6 +91,36 @@ class PatientResponse(PatientBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    family_doctor_id: int | None = None
+    family_doctor_name: str | None = None
+    # Set by the doctor's "my patients" list when this patient chose them.
+    is_family_patient: bool = False
+
+
+class FamilyDoctorRequest(BaseModel):
+    """Choose a family doctor and what standing categories they may read.
+
+    Backed by an ongoing-care PatientConsent scoped to this doctor.
+    """
+
+    doctor_id: int
+    allow_medical_history: bool = False
+    allow_lab_reports: bool = False
+    allow_prescriptions: bool = False
+    allow_uploaded_documents: bool = False
+
+    @model_validator(mode="after")
+    def at_least_one_category(self):
+        if not any(
+            (
+                self.allow_medical_history,
+                self.allow_lab_reports,
+                self.allow_prescriptions,
+                self.allow_uploaded_documents,
+            )
+        ):
+            raise ValueError("Choose at least one thing to share with your family doctor")
+        return self
 
 
 # --------------------------------------------------------------------------
@@ -301,6 +346,8 @@ class PrescriptionResponse(BaseModel):
     updated_at: datetime
     medicines: list[PrescriptionMedicineResponse] = []
     doctor_name: str | None = None
+    patient_name: str | None = None
+    patient_uhid: str | None = None
 
 
 class LabReportResponse(BaseModel):
@@ -349,3 +396,30 @@ class QRAccessResponse(BaseModel):
     access_token: str
     expires_at: datetime
     access_type: AccessType
+
+
+# --------------------------------------------------------------------------
+# Dashboard stats
+# --------------------------------------------------------------------------
+class AdminStatsResponse(BaseModel):
+    total_users: int
+    active_users: int
+    patients: int
+    doctors: int
+    nurses: int
+    pharmacies: int
+    hospitals: int
+    diagnostic_centers: int
+    consultations_today: int
+    patients_waiting: int
+    registrations_this_week: int
+
+
+class NurseStatsResponse(BaseModel):
+    """Scoped to the nurse's own hospital."""
+
+    patients_waiting: int
+    in_consultation: int
+    emergency_waiting: int
+    doctors_on_duty: int
+    completed_today: int

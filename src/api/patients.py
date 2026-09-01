@@ -1,16 +1,21 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from src.core.deps import CurrentPatient, CurrentUser, DbSession
 from src.models.clinical import LabReport, MedicalRecord, Prescription
-from src.models.enums import UserRole
+from src.models.consent import PatientConsent
+from src.models.enums import ConsentStatus, ConsentType, UserRole
 from src.models.people import Doctor, Patient
 from src.models.user import User
 from src.schemas.healthcare import (
+    FamilyDoctorRequest,
     LabReportResponse,
     MedicalRecordResponse,
     PatientResponse,
+    PatientUpdate,
     PrescriptionResponse,
     QRAccessRequest,
     QRAccessResponse,
@@ -18,6 +23,14 @@ from src.schemas.healthcare import (
 from src.services.qr import create_qr_grant, resolve_grant
 
 router = APIRouter(prefix="/api/patients", tags=["Patients"])
+
+
+async def _profile_response(db: DbSession, patient: Patient) -> PatientResponse:
+    item = PatientResponse.model_validate(patient)
+    if patient.family_doctor_id is not None:
+        names = await _doctor_names(db, {patient.family_doctor_id})
+        item.family_doctor_name = names.get(patient.family_doctor_id)
+    return item
 
 
 async def _doctor_names(db: DbSession, doctor_ids: set[int]) -> dict[int, str]:
@@ -33,8 +46,81 @@ async def _doctor_names(db: DbSession, doctor_ids: set[int]) -> dict[int, str]:
 
 
 @router.get("/me", response_model=PatientResponse)
-async def get_my_profile(patient: CurrentPatient):
-    return PatientResponse.model_validate(patient)
+async def get_my_profile(patient: CurrentPatient, db: DbSession):
+    return await _profile_response(db, patient)
+
+
+@router.patch("/me", response_model=PatientResponse)
+async def update_my_profile(payload: PatientUpdate, patient: CurrentPatient, db: DbSession):
+    """Update the signed-in patient's own profile. Only the fields sent are touched."""
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(patient, field, value)
+    await db.commit()
+    await db.refresh(patient)
+    return await _profile_response(db, patient)
+
+
+@router.put("/me/family-doctor", response_model=PatientResponse)
+async def set_family_doctor(payload: FamilyDoctorRequest, patient: CurrentPatient, db: DbSession):
+    """Choose a family doctor and grant them standing access to the chosen
+    categories, via an ongoing-care consent scoped to that doctor."""
+    doctor = await db.get(Doctor, payload.doctor_id)
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+
+    # Revoke any previous family-doctor grant (a different doctor, or stale flags).
+    existing = (
+        await db.execute(
+            select(PatientConsent).where(
+                PatientConsent.patient_id == patient.id,
+                PatientConsent.consent_type == ConsentType.ONGOING_CARE,
+                PatientConsent.status == ConsentStatus.GRANTED,
+            )
+        )
+    ).scalars().all()
+    for consent in existing:
+        consent.status = ConsentStatus.REVOKED
+        consent.revoked_at = datetime.now(UTC)
+
+    db.add(
+        PatientConsent(
+            patient_id=patient.id,
+            doctor_id=doctor.id,
+            consent_type=ConsentType.ONGOING_CARE,
+            status=ConsentStatus.GRANTED,
+            purpose="Family doctor",
+            allow_medical_history=payload.allow_medical_history,
+            allow_lab_reports=payload.allow_lab_reports,
+            allow_prescriptions=payload.allow_prescriptions,
+            allow_uploaded_documents=payload.allow_uploaded_documents,
+        )
+    )
+    patient.family_doctor_id = doctor.id
+    await db.commit()
+    await db.refresh(patient)
+    return await _profile_response(db, patient)
+
+
+@router.delete("/me/family-doctor", response_model=PatientResponse)
+async def clear_family_doctor(patient: CurrentPatient, db: DbSession):
+    """Remove the family doctor and revoke the standing consent behind it."""
+    existing = (
+        await db.execute(
+            select(PatientConsent).where(
+                PatientConsent.patient_id == patient.id,
+                PatientConsent.consent_type == ConsentType.ONGOING_CARE,
+                PatientConsent.status == ConsentStatus.GRANTED,
+            )
+        )
+    ).scalars().all()
+    for consent in existing:
+        consent.status = ConsentStatus.REVOKED
+        consent.revoked_at = datetime.now(UTC)
+
+    patient.family_doctor_id = None
+    await db.commit()
+    await db.refresh(patient)
+    return await _profile_response(db, patient)
 
 
 @router.post("/me/qr-access", response_model=QRAccessResponse)

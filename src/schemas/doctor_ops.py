@@ -179,5 +179,4 @@ class DoctorStatsResponse(BaseModel):
 class PharmacyStatsResponse(BaseModel):
     total_prescriptions: int
     today_dispensed: int
-    pending_dispensing: int
     total_revenue: float

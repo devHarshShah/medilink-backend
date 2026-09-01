@@ -7,11 +7,46 @@ from sqlalchemy.orm import selectinload
 from src.core.deps import CurrentPharmacy, DbSession
 from src.models.clinical import Prescription
 from src.models.enums import PrescriptionStatus
-from src.models.people import Patient
+from src.models.people import Doctor, Patient
+from src.models.user import User
 from src.schemas.healthcare import PatientResponse, PrescriptionResponse
 from src.services.qr import resolve_grant
 
 router = APIRouter(prefix="/api/pharmacy", tags=["Pharmacy"])
+
+
+async def _enrich(db: DbSession, items: list[PrescriptionResponse]) -> list[PrescriptionResponse]:
+    """Flatten patient and doctor names onto the rows - the pharmacy UI renders
+    `patient_name` / `patient_uhid` / `doctor_name` directly."""
+    if not items:
+        return items
+
+    doc_names = {
+        row[0]: row[1]
+        for row in (
+            await db.execute(
+                select(Doctor.id, User.full_name)
+                .join(User, Doctor.user_id == User.id)
+                .where(Doctor.id.in_({i.doctor_id for i in items}))
+            )
+        ).all()
+    }
+    patients = {
+        p.id: p
+        for p in (
+            await db.execute(select(Patient).where(Patient.id.in_({i.patient_id for i in items})))
+        )
+        .scalars()
+        .all()
+    }
+
+    for item in items:
+        item.doctor_name = doc_names.get(item.doctor_id)
+        patient = patients.get(item.patient_id)
+        if patient is not None:
+            item.patient_name = f"{patient.first_name} {patient.last_name}"
+            item.patient_uhid = patient.uhid
+    return items
 
 
 async def _prescriptions_for_patient(db: DbSession, patient_id: int) -> list[PrescriptionResponse]:
@@ -27,7 +62,7 @@ async def _prescriptions_for_patient(db: DbSession, patient_id: int) -> list[Pre
         for med in item.medicines:
             med.medicine_name = med.medicine.name
         payload.append(item)
-    return payload
+    return await _enrich(db, payload)
 
 
 @router.get("/prescriptions/uhid/{uhid}", response_model=list[PrescriptionResponse])
@@ -86,6 +121,7 @@ async def dispense_prescription(prescription_id: int, pharmacy: CurrentPharmacy,
     item = PrescriptionResponse.model_validate(prescription)
     for med in item.medicines:
         med.medicine_name = med.medicine.name
+    (item,) = await _enrich(db, [item])
     return item
 
 
@@ -103,4 +139,4 @@ async def get_dispensed_medicines(pharmacy: CurrentPharmacy, db: DbSession):
         for med in item.medicines:
             med.medicine_name = med.medicine.name
         payload.append(item)
-    return payload
+    return await _enrich(db, payload)

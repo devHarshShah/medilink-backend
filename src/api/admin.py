@@ -1,13 +1,17 @@
+from datetime import UTC, date, datetime, timedelta
+
 from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from src.core.deps import AdminUser, DbSession
 from src.core.security import hash_password
-from src.models.enums import UserRole
+from src.models.enums import QueueStatus, UserRole
 from src.models.organizations import DiagnosticCenter, Hospital, Pharmacy
-from src.models.people import Doctor, Nurse
+from src.models.people import Doctor, Nurse, Patient
+from src.models.queue import QueueEntry
 from src.models.user import User
 from src.schemas.healthcare import (
+    AdminStatsResponse,
     DiagnosticCenterCreate,
     DiagnosticCenterResponse,
     DoctorCreate,
@@ -22,6 +26,39 @@ from src.schemas.healthcare import (
 )
 
 router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[])
+
+
+async def _count(db: DbSession, model, *where) -> int:
+    stmt = select(func.count()).select_from(model)
+    for clause in where:
+        stmt = stmt.where(clause)
+    return int((await db.execute(stmt)).scalar_one())
+
+
+@router.get("/stats", response_model=AdminStatsResponse)
+async def platform_stats(admin: AdminUser, db: DbSession):
+    """Live platform numbers for the admin overview."""
+    today = date.today()
+    week_ago = datetime.now(UTC) - timedelta(days=7)
+
+    return AdminStatsResponse(
+        total_users=await _count(db, User),
+        active_users=await _count(db, User, User.is_active.is_(True)),
+        patients=await _count(db, Patient),
+        doctors=await _count(db, Doctor),
+        nurses=await _count(db, Nurse),
+        pharmacies=await _count(db, Pharmacy),
+        hospitals=await _count(db, Hospital),
+        diagnostic_centers=await _count(db, DiagnosticCenter),
+        consultations_today=await _count(
+            db,
+            QueueEntry,
+            QueueEntry.status == QueueStatus.COMPLETED,
+            func.date(QueueEntry.consultation_completed_at) == today,
+        ),
+        patients_waiting=await _count(db, QueueEntry, QueueEntry.status == QueueStatus.WAITING),
+        registrations_this_week=await _count(db, User, User.created_at >= week_ago),
+    )
 
 
 async def _create_user_for_org(

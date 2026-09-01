@@ -51,6 +51,7 @@ All seeded accounts use the password `MediLink@123`.
 | Doctor | `ananya.rao@medilink.health` |
 | Patient | `harsh.kumar@example.com` (UHID `ML2500000001`) |
 | Patient (with history) | `ravi.subramanian@example.com` (UHID `ML2500000003`) |
+| Nurse | `nurse.lakshmi@medilink.health` |
 | Pharmacy | `pharmacy@medilink.health` |
 | Diagnostic centre | `lab@medilink.health` |
 
@@ -81,6 +82,9 @@ The core of the product. A patient names candidate doctors; the server picks the
 (doctor x hospital) pair that will actually see them soonest and tells them when
 to leave, so they wait at home instead of in a corridor.
 
+> Full end-to-end reference — every step, every edge case, all tuning knobs:
+> [`docs/queue-algorithm.md`](docs/queue-algorithm.md).
+
 **Scoring** (`src/services/queue/scoring.py`, pure functions, no I/O):
 
 ```
@@ -93,6 +97,13 @@ leave_at = now + max(0, wait - travel - safety buffer)
 Travel is charged on top of the time it displaces, so a centre only wins on
 distance if the time it saves exceeds the extra journey. A hospital with no
 coordinates is treated as *unknown* distance, never as zero.
+
+**Severity lock.** The match penalty above is a soft preference. When triage
+returns `emergency` or `high` urgency it becomes hard: assignment is restricted
+to the top recommended specialisation, never a generalist. If the patient's
+chosen doctors include none, the search widens to every matching specialist on
+the network; if there are none anywhere, the join soft-fails telling them to seek
+emergency care directly.
 
 **Floating re-assignment.** A background task (`rescorer.py`) re-scores every
 waiting cross-hospital entry every 30s and moves patients to a better centre

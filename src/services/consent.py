@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.consent import ConsentAuditLog, PatientConsent
 from src.models.enums import ConsentStatus, QueueStatus
+from src.models.people import Doctor
 from src.models.queue import QueueEntry
 
 logger = logging.getLogger(__name__)
@@ -203,6 +204,63 @@ async def require(
         consent_id=consent.id,
         queue_entry_id=entry.id,
     )
+    return consent
+
+
+async def require_standing(
+    db: AsyncSession,
+    patient_id: int,
+    doctor_id: int,
+    actor_user_id: int | None,
+    category: str,
+) -> PatientConsent:
+    """Authorise one category of clinical read outside a consultation.
+
+    Unlike `require`, this is not bound to a live queue entry -- it exists so a
+    doctor the patient has shared with can read the categories they granted at
+    any time. Any live grant that names this doctor, or a hospital this doctor
+    practises at, counts, regardless of consent type; the narrowest match wins.
+    A grant scoped only to a single past consultation never confers standing
+    access.
+    """
+    doctor = await db.get(Doctor, doctor_id)
+    doctor_hospital_id = doctor.hospital_id if doctor is not None else None
+
+    scope = PatientConsent.doctor_id == doctor_id
+    if doctor_hospital_id is not None:
+        scope = or_(scope, PatientConsent.hospital_id == doctor_hospital_id)
+
+    result = await db.execute(
+        select(PatientConsent).where(
+            PatientConsent.patient_id == patient_id,
+            PatientConsent.status == ConsentStatus.GRANTED,
+            scope,
+        )
+    )
+    candidates = [c for c in result.scalars().all() if is_live(c)]
+    # Narrowest wins: a grant naming this doctor outranks a hospital-wide one.
+    candidates.sort(key=lambda c: (0 if c.doctor_id == doctor_id else 1, -c.id))
+    consent = candidates[0] if candidates else None
+
+    if consent is None:
+        await audit(db, patient_id, actor_user_id, category, False, reason="no_standing_consent")
+        raise ConsentDenied("This patient has not shared their records with you")
+
+    if not consent.allows(category):
+        await audit(
+            db,
+            patient_id,
+            actor_user_id,
+            category,
+            False,
+            consent_id=consent.id,
+            reason="category_not_permitted",
+        )
+        raise ConsentDenied(
+            f"This patient has not shared their {category.replace('_', ' ')} with you"
+        )
+
+    await audit(db, patient_id, actor_user_id, category, True, consent_id=consent.id)
     return consent
 
 

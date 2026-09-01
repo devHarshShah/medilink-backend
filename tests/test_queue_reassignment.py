@@ -40,7 +40,7 @@ async def _make_hospital(db, name, license_no, coords) -> Hospital:
     return hospital
 
 
-async def _make_doctor(db, hospital, license_no, avg=10.0) -> Doctor:
+async def _make_doctor(db, hospital, license_no, avg=10.0, specialization="General Medicine") -> Doctor:
     user = User(
         email=f"{license_no.lower()}@example.com",
         username=license_no.lower(),
@@ -54,7 +54,7 @@ async def _make_doctor(db, hospital, license_no, avg=10.0) -> Doctor:
         user_id=user.id,
         hospital_id=hospital.id,
         license_number=license_no,
-        specialization="General Medicine",
+        specialization=specialization,
         years_of_experience=5,
         qualification="MBBS",
         avg_consultation_minutes=avg,
@@ -316,3 +316,123 @@ async def test_completed_entries_are_not_rescored(session_factory, scenario):
     async with session_factory() as db:
         entry = await db.get(QueueEntry, scenario["entry_id"])
         assert await rescore_entry(db, entry) is False
+
+
+# --------------------------------------------------------------------------
+# Severity lock: high-urgency entries stay on / move to the right specialist
+# --------------------------------------------------------------------------
+def _cardiology_high() -> dict:
+    return {
+        "urgency_level": "high",
+        "recommended_specializations": [
+            {"specialization": "Cardiology", "priority": 1, "reason": "chest pain"},
+        ],
+    }
+
+
+async def test_high_urgency_entry_moves_from_a_generalist_to_a_specialist(session_factory):
+    async with session_factory() as db:
+        near = await _make_hospital(db, "Near", "H-SEV-N", NEAR)
+        far = await _make_hospital(db, "Far", "H-SEV-F", FAR)
+        gp = await _make_doctor(db, near, "D-SEV-GP", specialization="General Medicine")
+        cardio = await _make_doctor(db, far, "D-SEV-CARD", specialization="Cardiology")
+
+        # The generalist the patient is parked on is badly congested.
+        await _fill_queue(db, gp, near, 40)
+
+        patient = await _make_patient(db, "sev1")
+        entry = QueueEntry(
+            patient_id=patient.id,
+            doctor_id=gp.id,
+            hospital_id=near.id,
+            queue_type=QueueType.CROSS_HOSPITAL,
+            queue_number=41,
+            status=QueueStatus.WAITING,
+            priority=QueuePriority.HIGH,
+            candidate_doctor_ids=[gp.id, cardio.id],
+            ai_recommendation=_cardiology_high(),
+            patient_latitude=NEAR[0],
+            patient_longitude=NEAR[1],
+        )
+        db.add(entry)
+        await db.commit()
+        entry_id, cardio_id, far_id = entry.id, cardio.id, far.id
+
+    async with session_factory() as db:
+        entry = await db.get(QueueEntry, entry_id)
+        assert await rescore_entry(db, entry) is True
+
+    async with session_factory() as db:
+        entry = await db.get(QueueEntry, entry_id)
+        assert entry.doctor_id == cardio_id
+        assert entry.hospital_id == far_id
+
+
+async def test_high_urgency_entry_is_never_pulled_onto_a_generalist(session_factory):
+    """Even when an empty generalist next door would score better, the severity
+    lock keeps a Cardiology patient with a Cardiologist."""
+    async with session_factory() as db:
+        near = await _make_hospital(db, "Near", "H-SEV2-N", NEAR)
+        far = await _make_hospital(db, "Far", "H-SEV2-F", FAR)
+        gp = await _make_doctor(db, near, "D-SEV2-GP", specialization="General Medicine")
+        cardio = await _make_doctor(db, far, "D-SEV2-CARD", specialization="Cardiology")
+
+        # Cardiologist has a few ahead; generalist next door is empty.
+        await _fill_queue(db, cardio, far, 4)
+
+        patient = await _make_patient(db, "sev2")
+        entry = QueueEntry(
+            patient_id=patient.id,
+            doctor_id=cardio.id,
+            hospital_id=far.id,
+            queue_type=QueueType.CROSS_HOSPITAL,
+            queue_number=5,
+            status=QueueStatus.WAITING,
+            priority=QueuePriority.HIGH,
+            candidate_doctor_ids=[gp.id, cardio.id],
+            ai_recommendation=_cardiology_high(),
+            patient_latitude=NEAR[0],
+            patient_longitude=NEAR[1],
+        )
+        db.add(entry)
+        await db.commit()
+        entry_id, cardio_id = entry.id, cardio.id
+
+    async with session_factory() as db:
+        entry = await db.get(QueueEntry, entry_id)
+        assert await rescore_entry(db, entry) is False
+        assert entry.doctor_id == cardio_id
+
+
+async def test_high_urgency_entry_stays_put_when_no_specialist_exists(session_factory):
+    async with session_factory() as db:
+        near = await _make_hospital(db, "Near", "H-SEV3-N", NEAR)
+        far = await _make_hospital(db, "Far", "H-SEV3-F", FAR)
+        gp_near = await _make_doctor(db, near, "D-SEV3-GP1", specialization="General Medicine")
+        gp_far = await _make_doctor(db, far, "D-SEV3-GP2", specialization="General Medicine")
+        await _fill_queue(db, gp_near, near, 40)
+
+        patient = await _make_patient(db, "sev3")
+        entry = QueueEntry(
+            patient_id=patient.id,
+            doctor_id=gp_near.id,
+            hospital_id=near.id,
+            queue_type=QueueType.CROSS_HOSPITAL,
+            queue_number=41,
+            status=QueueStatus.WAITING,
+            priority=QueuePriority.HIGH,
+            candidate_doctor_ids=[gp_near.id, gp_far.id],
+            ai_recommendation=_cardiology_high(),
+            patient_latitude=NEAR[0],
+            patient_longitude=NEAR[1],
+        )
+        db.add(entry)
+        await db.commit()
+        entry_id, gp_near_id = entry.id, gp_near.id
+
+    async with session_factory() as db:
+        entry = await db.get(QueueEntry, entry_id)
+        # No Cardiologist anywhere -> the sweep leaves the entry alone rather
+        # than downgrading it to a generalist.
+        assert await rescore_entry(db, entry) is False
+        assert entry.doctor_id == gp_near_id

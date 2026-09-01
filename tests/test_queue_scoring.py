@@ -12,10 +12,12 @@ from src.services.queue.scoring import (
     Candidate,
     compute_leave_at,
     haversine_km,
+    is_severity_locked,
     is_worth_moving,
     rank_candidates,
     score_candidate,
     should_lock_in,
+    top_specialization,
     travel_minutes,
     waiting_minutes,
 )
@@ -210,3 +212,39 @@ def test_clear_improvement_triggers_a_move():
 
 def test_a_worse_option_never_triggers_a_move():
     assert is_worth_moving(current_score=30.0, best_score=80.0) is False
+
+
+# --------------------------------------------------------------------------
+# Severity lock
+# --------------------------------------------------------------------------
+def _reco(urgency: str, *specs: tuple[str, int]) -> dict:
+    return {
+        "urgency_level": urgency,
+        "recommended_specializations": [
+            {"specialization": name, "priority": pr, "reason": "x"} for name, pr in specs
+        ],
+    }
+
+
+def test_severity_lock_triggers_only_for_emergency_and_high():
+    assert is_severity_locked(_reco("emergency", ("Cardiology", 1))) is True
+    assert is_severity_locked(_reco("high", ("Cardiology", 1))) is True
+    assert is_severity_locked(_reco("medium", ("Cardiology", 1))) is False
+    assert is_severity_locked(_reco("low", ("Cardiology", 1))) is False
+
+
+def test_severity_lock_is_false_without_a_triage_result():
+    assert is_severity_locked(None) is False
+    assert is_severity_locked({}) is False
+
+
+def test_top_specialization_picks_the_lowest_priority_number():
+    reco = _reco("high", ("General Medicine", 3), ("Cardiology", 1), ("Pulmonology", 2))
+    assert top_specialization(reco) == "Cardiology"
+
+
+def test_top_specialization_is_none_when_absent():
+    assert top_specialization(None) is None
+    assert top_specialization({}) is None
+    assert top_specialization({"recommended_specializations": []}) is None
+    assert top_specialization({"recommended_specializations": [{"priority": 1}]}) is None

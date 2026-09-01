@@ -26,10 +26,12 @@ from src.services.queue.scoring import (
     Candidate,
     ScoredCandidate,
     compute_leave_at,
+    is_severity_locked,
     is_worth_moving,
     rank_candidates,
     score_candidate,
     should_lock_in,
+    top_specialization,
     travel_minutes,
 )
 
@@ -131,20 +133,20 @@ def match_scores_from_ai(ai_recommendation: dict | None) -> dict[str, float]:
     return scores
 
 
-async def build_candidates(
-    db: AsyncSession,
-    doctor_ids: list[int],
+def _rows_to_candidates(
+    rows: list[tuple],
+    sizes: dict[tuple[int, int], int],
     hospital_id: int | None,
     match_scores: dict[str, float],
-    exclude_entry_id: int | None = None,
+    specialization: str | None = None,
 ) -> list[Candidate]:
-    rows = await doctor_locations(db, doctor_ids)
-    sizes = await queue_sizes(db, exclude_entry_id=exclude_entry_id)
-
     candidates: list[Candidate] = []
     for doctor, hospital, user in rows:
         # hospital_specific joins pin the patient to one centre.
         if hospital_id is not None and hospital.id != hospital_id:
+            continue
+        # Severity lock: only doctors of the required specialisation.
+        if specialization is not None and doctor.specialization != specialization:
             continue
         candidates.append(
             Candidate(
@@ -161,6 +163,69 @@ async def build_candidates(
             )
         )
     return candidates
+
+
+async def build_candidates(
+    db: AsyncSession,
+    doctor_ids: list[int],
+    hospital_id: int | None,
+    match_scores: dict[str, float],
+    exclude_entry_id: int | None = None,
+) -> list[Candidate]:
+    rows = await doctor_locations(db, doctor_ids)
+    sizes = await queue_sizes(db, exclude_entry_id=exclude_entry_id)
+    return _rows_to_candidates(rows, sizes, hospital_id, match_scores)
+
+
+async def build_specialist_candidates(
+    db: AsyncSession,
+    specialization: str,
+    hospital_id: int | None,
+    match_scores: dict[str, float],
+    exclude_entry_id: int | None = None,
+) -> list[Candidate]:
+    """Every available doctor of one specialisation, network-wide.
+
+    Used when a severity-locked patient's own picks contain no doctor of the
+    specialisation triage demands -- rather than bounce them back to the wizard,
+    we widen the search to the whole network.
+    """
+    rows = await doctor_locations(db, None)
+    sizes = await queue_sizes(db, exclude_entry_id=exclude_entry_id)
+    return _rows_to_candidates(rows, sizes, hospital_id, match_scores, specialization=specialization)
+
+
+async def select_candidates(
+    db: AsyncSession,
+    doctor_ids: list[int],
+    hospital_id: int | None,
+    match_scores: dict[str, float],
+    ai_recommendation: dict | None,
+    exclude_entry_id: int | None = None,
+) -> tuple[list[Candidate], str | None]:
+    """Candidate set for assignment, applying the severity lock.
+
+    Returns (candidates, required_specialization). When urgency is emergency or
+    high, candidates are restricted to the top recommended specialisation --
+    from the patient's picks if any match, otherwise from the whole network. An
+    empty list means no such specialist is available anywhere; the caller turns
+    that into a soft error rather than silently assigning a generalist.
+    """
+    candidates = await build_candidates(db, doctor_ids, hospital_id, match_scores, exclude_entry_id)
+
+    if not is_severity_locked(ai_recommendation):
+        return candidates, None
+
+    spec = top_specialization(ai_recommendation)
+    if spec is None:
+        return candidates, None
+
+    matching = [c for c in candidates if c.specialization == spec]
+    if not matching:
+        matching = await build_specialist_candidates(
+            db, spec, hospital_id, match_scores, exclude_entry_id
+        )
+    return matching, spec
 
 
 async def next_queue_number(db: AsyncSession, doctor_id: int, hospital_id: int) -> int:
@@ -251,8 +316,15 @@ async def join_queue(
         return None, [], "You are already in a queue. Cancel it before joining another."
 
     match_scores = match_scores_from_ai(ai_recommendation)
-    candidates = await build_candidates(db, doctor_ids, hospital_id, match_scores)
+    candidates, required_spec = await select_candidates(
+        db, doctor_ids, hospital_id, match_scores, ai_recommendation
+    )
     if not candidates:
+        if required_spec is not None:
+            return None, [], (
+                f"No {required_spec} is available right now. If this is an emergency, "
+                f"go to the nearest emergency department immediately."
+            )
         return None, [], "None of the selected doctors are currently available."
 
     ranked = rank_candidates(candidates, patient_lat, patient_lng)
@@ -317,7 +389,9 @@ async def rescore_entry(db: AsyncSession, entry: QueueEntry) -> bool:
 
     candidate_ids = entry.candidate_doctor_ids or [entry.doctor_id]
     match_scores = match_scores_from_ai(entry.ai_recommendation)
-    candidates = await build_candidates(db, candidate_ids, None, match_scores, exclude_entry_id=entry.id)
+    candidates, _ = await select_candidates(
+        db, candidate_ids, None, match_scores, entry.ai_recommendation, exclude_entry_id=entry.id
+    )
     if not candidates:
         return False
 
@@ -425,6 +499,7 @@ def candidate_to_info(scored: ScoredCandidate) -> dict:
 __all__ = [
     "ACTIVE_STATUSES",
     "build_candidates",
+    "build_specialist_candidates",
     "candidate_to_info",
     "doctor_locations",
     "estimate_wait",
@@ -437,4 +512,5 @@ __all__ = [
     "rescore_all_waiting",
     "rescore_entry",
     "score_candidate",
+    "select_candidates",
 ]
